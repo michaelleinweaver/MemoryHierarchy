@@ -4,8 +4,8 @@ The specification of the project is as follows:
 
 - [X] 32 Bit Von Neumann Architecture
 - [X] Multi-Cycle CPU
-- [ ]Memory Components:
-  - [ ]Memory Controller
+- [ ] Memory Components:
+  - [ ] Memory Controller
   - [X] Memory Management Unit
   - [X] Translation Lookaside Buffer
   - [X] L2 Cache<br>
