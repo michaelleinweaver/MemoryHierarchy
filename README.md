@@ -2,13 +2,13 @@ This project is an investigation into the effectiveness and shortcomings of the 
 
 The specification of the project is as follows:
 
-32 Bit Von Neumann Architecture
-Multi-Cycle CPU
-Memory Components:
-	- Memory Controller
-	- Memory Management Unit
-	- Translation Lookaside Buffer
-	- L2 Cache
-	- Main Memory
-	- I/O Buffer
-	- Magnetic Disk
+- [X] 32 Bit Von Neumann Architecture
+- [X] Multi-Cycle CPU
+- [ ]Memory Components:
+  - [ ]Memory Controller
+  - [X] Memory Management Unit
+  - [X] Translation Lookaside Buffer
+  - [X] L2 Cache<br>
+  - [X] Main Memory
+  - [X] I/O Buffer
+  - [X] Magnetic Disk
