@@ -10,7 +10,7 @@ The specification of the project is as follows:
   - [ ] Memory Controller
   - [X] Memory Management Unit
   - [X] Translation Lookaside Buffer
-  - [X] L2 Cache (512 Bytes, 16 x 32 words)
-  - [X] Main Memory (4096 Bytes, 128 x 32 words)
-  - [X] I/O Buffer (4096 Bytes, 128 x 32 words)
-  - [X] Magnetic Disk (4 Gigabytes, 1048576 x 32 words)
+  - [X] L2 Cache (512 Bytes, 16 x 8 words)
+  - [X] Main Memory (4096 Bytes, 128 x 8 words)
+  - [X] I/O Buffer (4096 Bytes, 128 x 8 words)
+  - [X] Magnetic Disk (4 Gigabytes, 1048576 x 8 words)
