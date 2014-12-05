@@ -70,8 +70,10 @@ architecture MemController_arch of MemController is
 			if(controller_enable_read = '0' AND controller_enable_write = '0')
 			then
 				next_state <= "00010";
+
 			else
 				next_state <= "00011";
+
 			end if;
 
 		elsif(current_state = "00011")
@@ -85,6 +87,7 @@ architecture MemController_arch of MemController is
 			next_state <= "00101";
 
 			tlb_read <= '0';
+
 			mmu_enable <= '1';
 
 		elsif(current_state = "00101")
@@ -129,8 +132,10 @@ architecture MemController_arch of MemController is
 			if(controller_enable_read = '1')
 			then
 				next_state <= next_state_read;
+
 			else
 				next_state <= "10001";
+
 			end if;
 
 		elsif(current_state = "01010")
@@ -183,7 +188,84 @@ architecture MemController_arch of MemController is
 		then
 			next_state <= "00010";
 
+			l2_write_mm <= '0';
+
 			l2_read_cpu <= '1';
+
+		elsif(current_state = "10001")
+		then
+			l2_write_cpu <= '1';
+
+			if(addr_in_mmu(31 downto 30) = "11")
+			then
+				next_state <= "00010";		
+
+			else
+				next_state <= "10010";
+
+			end if;
+
+		elsif(current_state = "10010")
+		then
+			l2_write_cpu <= '0';
+
+			l2_read_mm <= '1';
+
+			next_state <= "10011";
+
+		elsif(current_state = "10011")
+		then
+			l2_read_mm <= '0';
+	
+			mm_write_cache <= '1';
+
+			if(addr_in_mmu(31 downto 30) = "10")
+			then
+				next_state <= "00010";		
+
+			else
+				next_state <= "10100";
+
+			end if;
+
+		elsif(current_state <= "10100")
+		then
+			mm_write_cache <= '0';
+
+			mm_read_io <= '1';
+
+			next_state <= "10101";
+
+		elsif(current_state <= "10101")
+		then
+			mm_read_io <= '0';
+
+			iobuf_write_mm <= '1';
+
+			if(addr_in_mmu(31 downto 30) = "11")
+			then
+				next_state <= "00010";		
+
+			else
+				next_state <= "10110";
+
+			end if;
+
+		elsif(current_state <= "10110")
+		then
+			iobuf_write_mm <= '0';
+
+			iobuf_read_disk <= '1';
+
+			next_state <= "10111";
+
+		elsif(current_state <= "10111")
+		then
+			iobuf_read_disk <= '0';
+
+			disk_write <= '1';
+
+			next_state <= "00010";
 
 		else
 			next_state <= "00000";
