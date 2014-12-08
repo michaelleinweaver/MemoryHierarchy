@@ -12,25 +12,28 @@ entity MagDisk is
 		din : IN TRACK;
 		reset_N : IN STD_LOGIC;
 		disk_read, disk_write : IN STD_LOGIC;
-		dout : OUT TRACK
+		dout : OUT TRACK;
+		read_complete, write_complete : OUT STD_LOGIC
 	);
 end MagDisk;
 
 architecture MagDisk_arch of MagDisk is
 
-	signal addr_sector: STD_LOGIC_VECTOR(17 downto 0);
+	signal addr_sector: natural;
 
-	signal addr_track : STD_LOGIC_VECTOR(2 downto 0);
+	signal addr_track : natural;
 
-	signal read_latency, write_latency : time;
+	signal read_latency, write_latency, clock_period : time;
 
 	signal CONTENTS : disk_storage;
 
 	begin
 
-	addr_sector <= addr_in(29 downto 12);
+	addr_sector <= to_integer(unsigned(addr_in(29 downto 12)));
 
-	addr_track <= addr_in(11 downto 9);
+	addr_track <= to_integer(unsigned(addr_in(11 downto 9)));
+
+	clock_period <= 2 * CLK_PERIOD;
 
 	read_latency <= SEEK_LATENCY + ROTATE_LATENCY + SATA_LATENCY;
 
@@ -44,13 +47,24 @@ architecture MagDisk_arch of MagDisk is
 			-- assign all zeroes
 			CONTENTS <= (others => (others => (others => Zero_byte)));
 
+			read_complete <= '0';
+
+			write_complete <= '0';
+
 		elsif(disk_write'event and disk_write = '1')
 		then
-			CONTENTS(to_integer(unsigned(addr_sector)))(to_integer(unsigned(addr_track))) <= din;
+			CONTENTS(addr_sector)(addr_track) <= din
+				after write_latency;
+
+			-- Reset the signal after one clock period
+			write_complete <= '1' after 0 ns, '0' after clock_period;
 
 		elsif(disk_read'event and disk_read = '1')
 		then
-			dout <= CONTENTS(to_integer(unsigned(addr_sector)))(to_integer(unsigned(addr_track)));
+			dout <= CONTENTS(addr_sector)(addr_track) after read_latency;
+
+			-- Reset the signal after one clock period
+			read_complete <= '1' after 0 ns, '0' after clock_period;
 
 		else
 			null;
