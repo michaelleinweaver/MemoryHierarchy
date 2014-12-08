@@ -15,7 +15,8 @@ entity MainMem is
 		page_query, reset_N : in STD_LOGIC;
 		page_found : out STD_LOGIC;
 		page_out_buffer : out PAGE;
-		dout_l2cache : OUT word
+		dout_l2cache : OUT word;
+		read_complete, write_complete : OUT STD_LOGIC
 	);
 end MainMem;
 
@@ -29,7 +30,7 @@ architecture MainMem_arch of MainMem is
 	-- Assume big endian
 	signal byte_three, byte_two, byte_one, byte_zero : Byte;
 	signal address_start : natural;
-	signal MAIN_MEMORY_DELAY_SPLIT : time;
+	signal MAIN_MEMORY_DELAY_SPLIT, clock_period : time;
 
 	begin
 
@@ -37,11 +38,17 @@ architecture MainMem_arch of MainMem is
 
 	MAIN_MEMORY_DELAY_SPLIT <= MAIN_MEMORY_DELAY / 4;
 
+	clock_period <= 2 * CLK_PERIOD;
+
 	process(mem_read_buffer, mem_read_cache, mem_write_buffer, mem_write_cache, page_query)
 	begin
 		if(reset_N'event and reset_N = '0')
 		then
 			contents <= (others => (others => '0'));
+
+			read_complete <= '0';
+
+			write_complete <= '0';
 
 		elsif(page_query'event and page_query = '1')
 		then
@@ -59,6 +66,9 @@ architecture MainMem_arch of MainMem is
 		then
 			page_out_buffer <= contents after MAIN_MEMORY_DELAY;
 
+			-- Reset the signal after one clock period
+			read_complete <= '1' after 0 ns, '0' after clock_period;
+
 		elsif(mem_read_cache'event and mem_read_cache = '1')
 		then
 			byte_three <= contents(address_start);
@@ -68,6 +78,9 @@ architecture MainMem_arch of MainMem is
 
 			dout_l2cache <= byte_three & byte_two & byte_one & byte_zero after MAIN_MEMORY_DELAY;
 
+			-- Reset the signal after one clock period
+			read_complete <= '1' after 0 ns, '0' after clock_period;
+
 		elsif(mem_write_buffer'event and mem_write_buffer = '1')
 		then
 			-- Write addresses for each of the entries
@@ -76,6 +89,9 @@ architecture MainMem_arch of MainMem is
 			end loop;
 
 			contents <= page_in_buffer after MAIN_MEMORY_DELAY;
+
+			-- Reset the signal after one clock period
+			write_complete <= '1' after 0 ns, '0' after clock_period;
 
 		elsif(mem_write_cache'event and mem_write_cache = '1')
 		then
@@ -90,6 +106,9 @@ architecture MainMem_arch of MainMem is
 			contents(address_start + 24) <= byte_zero after MAIN_MEMORY_DELAY_SPLIT;	
 
 			page_table(address_start) <= '1' & addr_in(7 downto 0);
+
+			-- Reset the signal after one clock period
+			write_complete <= '1' after 0 ns, '0' after clock_period;
 
 		else
 

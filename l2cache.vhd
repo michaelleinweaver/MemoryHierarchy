@@ -12,8 +12,9 @@ entity L2Cache is
 		index_in : IN INDEX;
 		din_cpu, din_mainmem : IN word;
 		cache_read_mm, cache_read_cpu, cache_write_mm, cache_write_cpu : IN STD_LOGIC;
-		reset_N : in STD_LOGIC;
-		dout_cpu, dout_mainmem : OUT word
+		reset_N : IN STD_LOGIC;
+		dout_cpu, dout_mainmem : OUT word;
+		read_complete, write_complete : OUT STD_LOGIC
 	);
 end L2Cache;
 
@@ -25,11 +26,13 @@ architecture L2Cache_arch of L2Cache is
 
 	signal cache_entry : STD_LOGIC_VECTOR(56 downto 0);
 
-	signal L2_SPLIT_DELAY : time;
+	signal L2_SPLIT_DELAY, clock_period : time;
 
 	begin
 
 	L2_SPLIT_DELAY <= L2_DELAY / 3;
+
+	clock_period <= 2 * CLK_PERIOD;
 
 	array_index <= to_integer(unsigned(index_in));
 
@@ -44,6 +47,10 @@ architecture L2Cache_arch of L2Cache is
 		if(reset_N'event and reset_N = '0')
 		then
 			contents <= (others => (others => '0'));
+
+			read_complete <= '0';
+
+			write_complete <= '0';
 		
 		elsif(cache_read_mm'event and cache_read_mm = '1')
 		then
@@ -51,8 +58,11 @@ architecture L2Cache_arch of L2Cache is
 			then
 				dout_mainmem <= cache_entry(31 downto 0) after L2_DELAY;
 
+				-- Reset the signal after one clock period
+				read_complete <= '1' after 0 ns, '0' after clock_period;
+
 			else
-				null;
+				read_complete <= '0';
 
 			end if;
 
@@ -62,8 +72,11 @@ architecture L2Cache_arch of L2Cache is
 			then
 				dout_cpu <= cache_entry(31 downto 0) after L2_DELAY;
 
+				-- Reset the signal after one clock period
+				read_complete <= '1' after 0 ns, '0' after clock_period;
+
 			else
-				null;
+				read_complete <= '0';
 
 			end if;
 	
@@ -73,11 +86,17 @@ architecture L2Cache_arch of L2Cache is
 			cache_entry(55 downto 32) <= tag_in after L2_SPLIT_DELAY;
 			cache_entry(56) <= '1' after L2_SPLIT_DELAY;
 
+			-- Reset the signal after one clock period
+			write_complete <= '1' after 0 ns, '0' after clock_period;
+
 		elsif(cache_write_cpu'event and cache_write_cpu = '1')
 		then
 			cache_entry(31 downto 0) <= din_cpu after L2_SPLIT_DELAY;
 			cache_entry(55 downto 32) <= tag_in after L2_SPLIT_DELAY;
 			cache_entry(56) <= '1' after L2_SPLIT_DELAY;
+
+			-- Reset the signal after one clock period
+			write_complete <= '1' after 0 ns, '0' after clock_period;
 
 		else
 			null;
