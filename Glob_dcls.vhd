@@ -210,7 +210,8 @@ package Glob_dcls is
 				din_cpu, din_mainmem : IN word;
 				cache_read_mm, cache_read_cpu, cache_write_mm, cache_write_cpu : IN STD_LOGIC;
 				reset_N : in STD_LOGIC;
-				dout_cpu, dout_mainmem : OUT word
+				dout_cpu, dout_mainmem : OUT word;
+				read_complete, write_complete : OUT STD_LOGIC
 			);
 		end component;
 
@@ -232,7 +233,8 @@ package Glob_dcls is
 				page_query, reset_N : in STD_LOGIC;
 				page_found : out STD_LOGIC;
 				page_out_buffer : out PAGE;
-				dout_l2cache : OUT word
+				dout_l2cache : OUT word;
+				read_complete, write_complete : OUT STD_LOGIC
 			);
 		end component;
 
@@ -253,7 +255,8 @@ package Glob_dcls is
 			io_read_mm, io_write_mm : IN STD_LOGIC;
 			io_read_disk, io_write_disk : IN STD_LOGIC;
 			page_out_mm : OUT PAGE;
-			track_out_disk : OUT TRACK
+			track_out_disk : OUT TRACK;
+			read_complete, write_complete : OUT STD_LOGIC
 		);
 		end component;
 
@@ -263,7 +266,8 @@ package Glob_dcls is
 				din : IN TRACK;
 				disk_read, disk_write : IN STD_LOGIC;
 				reset_N : IN STD_LOGIC;
-				dout : OUT TRACK
+				dout : OUT TRACK;
+				read_complete, write_complete : OUT STD_LOGIC
 			);
 		end component;
 
