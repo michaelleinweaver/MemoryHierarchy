@@ -278,6 +278,10 @@ package Glob_dcls is
 				page_lookup_needed 															: IN STD_LOGIC;
 				mm_page_found																		: IN STD_LOGIC;
 				clk																							: IN STD_LOGIC;
+				l2_read_complete, l2_write_complete							: IN STD_LOGIC;
+				mm_read_complete, mm_write_complete							: IN STD_LOGIC;
+				iobuf_read_complete, iobuf_write_complete				: IN STD_LOGIC;
+				disk_read_complete, disk_write_complete					: IN STD_LOGIC;
 				addr_out_cpu 																		: OUT word;
 				reset_N																					: OUT STD_LOGIC;
 				mmu_enable, mm_page_query 											: OUT STD_LOGIC;
