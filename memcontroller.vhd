@@ -343,40 +343,91 @@ architecture MemController_arch of MemController is
 		-- write from the cpu to the cache
 		elsif(current_state = "10001")
 		then
-			l2_write_cpu <= '1';
-
-			if(addr_in_mmu(31 downto 30) = "11")
+			if(writing /= '1')
 			then
-				next_state <= "00010";		
+				writing <= '1';
+		
+				l2_write_cpu <= '1';
+
+				next_state <= "10001";
 
 			else
-				next_state <= "10010";
+				if(l2_write_complete = '1')
+				then
+					writing <= '0';
 
+					if(addr_in_mmu(31 downto 30) = "11")
+					then
+						next_state <= "00010";		
+
+					else
+						next_state <= "10010";
+
+					end if;
+
+				else
+					next_state <= "10001";
+
+				end if;
 			end if;
 
 		-- read from the l2 cache to main memory
 		elsif(current_state = "10010")
 		then
 			l2_write_cpu <= '0';
+	
+			if(reading /= '1')
+			then
+				reading <= '1';
+			
+				l2_read_mm <= '1';
 
-			l2_read_mm <= '1';
+				next_state <= "10010";
 
-			next_state <= "10011";
+			else
+				if(l2_read_complete = '1')
+				then
+					reading <= '0';
+
+					next_state <= "10011";
+
+				else
+					next_state <= "10010";
+
+				end if;
+			end if;
 
 		-- write to main memory from the l2 cache
 		elsif(current_state = "10011")
 		then
 			l2_read_mm <= '0';
-	
-			mm_write_cache <= '1';
 
-			if(addr_in_mmu(31 downto 30) = "10")
+			if(writing /= '1')
 			then
-				next_state <= "00010";		
+				writing <= '1';
+
+				mm_write_cache <= '1';
+
+				next_state <= "10011";
 
 			else
-				next_state <= "10100";
+				if(mm_write_complete = '1')
+				then
+					writing <= '0';
 
+					if(addr_in_mmu(31 downto 30) = "10")
+					then
+						next_state <= "00010";		
+
+					else
+						next_state <= "10100";
+
+					end if;
+
+				else
+					next_state <= "10011";
+
+				end if;
 			end if;
 
 		-- read from main memory to the buffer
@@ -384,24 +435,58 @@ architecture MemController_arch of MemController is
 		then
 			mm_write_cache <= '0';
 
-			mm_read_io <= '1';
+			if(reading /= '1')
+			then
+				reading <= '1';
+	
+				mm_read_io <= '1';
 
-			next_state <= "10101";
+				next_state <= "10100";
+
+			else
+				if(mm_read_complete = '1')
+				then
+					reading <= '0';
+
+					next_state <= "10101";
+
+				else
+					next_state <= "10100";
+	
+				end if;
+			end if;
 
 		-- write to the buffer from main memory
 		elsif(current_state <= "10101")
 		then
 			mm_read_io <= '0';
 
-			iobuf_write_mm <= '1';
-
-			if(addr_in_mmu(31 downto 30) = "11")
+			if(writing /= '1')
 			then
-				next_state <= "00010";		
+				writing <= '1';
+		
+				iobuf_write_mm <= '1';
+
+				next_state <= "10101";
 
 			else
-				next_state <= "10110";
+				if(iobuf_write_complete = '1')
+				then
+					writing <= '0';
 
+					if(addr_in_mmu(31 downto 30) = "11")
+					then
+						next_state <= "00010";		
+
+					else
+						next_state <= "10110";
+
+					end if;
+
+				else
+					next_state <= "10101";
+
+				end if;
 			end if;
 
 		-- read from the buffer to the disk
@@ -409,18 +494,48 @@ architecture MemController_arch of MemController is
 		then
 			iobuf_write_mm <= '0';
 
-			iobuf_read_disk <= '1';
+			if(reading /= '1')
+			then
+					reading <= '1';
 
-			next_state <= "10111";
+					iobuf_read_disk <= '1';
+
+					next_state <= "10110";
+
+			else
+				if(disk_read_complete = '1')
+				then
+					next_state <= "10111";
+
+				else
+					next_state <= "10110";
+
+				end if;
+			end if;
 
 		-- write to the disk from the buffer
 		elsif(current_state <= "10111")
 		then
 			iobuf_read_disk <= '0';
 
-			disk_write <= '1';
+			if(writing /= '1')
+			then
+				writing <= '1';
 
-			next_state <= "00010";
+				disk_write <= '1';
+
+				next_state <= "10111";
+
+			else
+				if(disk_write_complete = '1')
+				then
+					next_state <= "00010";
+
+				else
+					next_state <= "10111";
+				
+				end if;
+			end if;
 
 		-- if the state is XXXXX, UUUUU, or some other underfined state, reset
 		-- the controller
