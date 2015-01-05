@@ -5,7 +5,7 @@ LIBRARY IEEE;
 USE ieee.std_logic_1164.all;
 
 package Glob_dcls is
-
+	
 	-- Data types 
 	constant word_size : natural := 32;			
 	subtype word is std_logic_vector(word_size-1 downto 0); 
@@ -55,7 +55,7 @@ package Glob_dcls is
 		-- Bits 11 .. 9 specify the track
 		-- Bits 8 .. 0 specify the byte
 	subtype TRACK_ADDR is integer range 0 to 7;
-	subtype SECTOR_ADDR is integer range 0 to 262143;
+	subtype SECTOR_ADDR is integer range 0 to 2048;
 	type TRACK is array(0 to 511) of Byte;
 	type SECTOR is array (TRACK_ADDR) of TRACK;
 
