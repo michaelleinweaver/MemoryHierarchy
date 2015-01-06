@@ -25,11 +25,7 @@ architecture IOBuf_arch of IOBuf is
 	-- Store contents as an array of words of size 128 (512 bytes / 4 bytes per word) 
 	signal contents : PAGE;
 
-	signal clock_period : time;
-
 	begin
-
-	clock_period <= 2 * CLK_PERIOD;
 
 	process(reset_N, io_read_mm, io_read_disk, io_write_mm, io_write_disk)
 	begin
@@ -45,28 +41,24 @@ architecture IOBuf_arch of IOBuf is
 		then
 			page_out_mm <= contents;
 
-			-- Reset the signal after one clock period
 			read_complete <= '1' after BUFFER_READ_DELAY;
 
 		elsif(io_read_disk'event and io_read_disk = '1')
 		then
 			track_out_disk <= contents;	
 
-			-- Reset the signal after one clock period
 			read_complete <= '1' after BUFFER_READ_DELAY;
 
 		elsif(io_write_mm'event and io_write_mm = '1')
 		then
 			contents <= page_in_mm;
 
-			-- Reset the signal after one clock period
 			write_complete <= '1' after BUFFER_WRITE_DELAY;
 
 		elsif(io_write_disk'event and io_write_disk = '1')
 		then
 			contents <= track_in_disk;
 
-			-- Reset the signal after one clock period
 			write_complete <= '1' after BUFFER_WRITE_DELAY;
 
 		else
