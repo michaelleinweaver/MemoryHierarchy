@@ -33,41 +33,41 @@ architecture IOBuf_arch of IOBuf is
 
 	process(reset_N, io_read_mm, io_read_disk, io_write_mm, io_write_disk)
 	begin
+		read_complete <= '0';
+
+		write_complete <= '0';
+
 		if(reset_N'event and reset_N = '0')
 		then
 			contents <= (others => (others => '0'));
 
-			read_complete <= '0';
-
-			write_complete <= '0';
-
 		elsif(io_read_mm'event and io_read_mm = '1')
 		then
-			page_out_mm <= contents after BUFFER_READ_DELAY;
+			page_out_mm <= contents;
 
 			-- Reset the signal after one clock period
-			read_complete <= '1' after BUFFER_READ_DELAY, '0' after (BUFFER_READ_DELAY + clock_period);
+			read_complete <= '1' after BUFFER_READ_DELAY;
 
 		elsif(io_read_disk'event and io_read_disk = '1')
 		then
-			track_out_disk <= contents after BUFFER_READ_DELAY;	
+			track_out_disk <= contents;	
 
 			-- Reset the signal after one clock period
-			read_complete <= '1' after BUFFER_READ_DELAY, '0' after (BUFFER_READ_DELAY + clock_period);
+			read_complete <= '1' after BUFFER_READ_DELAY;
 
 		elsif(io_write_mm'event and io_write_mm = '1')
 		then
-			contents <= page_in_mm after BUFFER_WRITE_DELAY;
+			contents <= page_in_mm;
 
 			-- Reset the signal after one clock period
-			write_complete <= '1' after BUFFER_WRITE_DELAY, '0' after (BUFFER_WRITE_DELAY + clock_period);
+			write_complete <= '1' after BUFFER_WRITE_DELAY;
 
 		elsif(io_write_disk'event and io_write_disk = '1')
 		then
-			contents <= track_in_disk after BUFFER_WRITE_DELAY;
+			contents <= track_in_disk;
 
 			-- Reset the signal after one clock period
-			write_complete <= '1' after BUFFER_WRITE_DELAY, '0' after (BUFFER_WRITE_DELAY + clock_period);
+			write_complete <= '1' after BUFFER_WRITE_DELAY;
 
 		else
 			null;
