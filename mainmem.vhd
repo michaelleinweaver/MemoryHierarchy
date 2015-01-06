@@ -67,7 +67,7 @@ architecture MainMem_arch of MainMem is
 			page_out_buffer <= contents after MAIN_MEMORY_DELAY;
 
 			-- Reset the signal after one clock period
-			read_complete <= '1' after 0 ns, '0' after clock_period;
+			read_complete <= '1' after MAIN_MEMORY_DELAY, '0' after (MAIN_MEMORY_DELAY + clock_period);
 
 		elsif(mem_read_cache'event and mem_read_cache = '1')
 		then
@@ -79,7 +79,7 @@ architecture MainMem_arch of MainMem is
 			dout_l2cache <= byte_three & byte_two & byte_one & byte_zero after MAIN_MEMORY_DELAY;
 
 			-- Reset the signal after one clock period
-			read_complete <= '1' after 0 ns, '0' after clock_period;
+			read_complete <= '1' after MAIN_MEMORY_DELAY, '0' after (MAIN_MEMORY_DELAY + clock_period);
 
 		elsif(mem_write_buffer'event and mem_write_buffer = '1')
 		then
@@ -91,7 +91,7 @@ architecture MainMem_arch of MainMem is
 			contents <= page_in_buffer after MAIN_MEMORY_DELAY;
 
 			-- Reset the signal after one clock period
-			write_complete <= '1' after 0 ns, '0' after clock_period;
+			write_complete <= '1' after MAIN_MEMORY_DELAY, '0' after (MAIN_MEMORY_DELAY + clock_period);
 
 		elsif(mem_write_cache'event and mem_write_cache = '1')
 		then
@@ -108,7 +108,7 @@ architecture MainMem_arch of MainMem is
 			page_table(address_start) <= '1' & addr_in(7 downto 0);
 
 			-- Reset the signal after one clock period
-			write_complete <= '1' after 0 ns, '0' after clock_period;
+			write_complete <= '1' after MAIN_MEMORY_DELAY, '0' after (MAIN_MEMORY_DELAY + clock_period);
 
 		else
 
