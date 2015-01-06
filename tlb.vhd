@@ -40,7 +40,7 @@ architecture TLB_arch of TLB is
 
 			else
 				found <= '0';
-				addr_out <= U_word;
+				addr_out <= U_word after TLB_delay;
 
 			end if;
 
