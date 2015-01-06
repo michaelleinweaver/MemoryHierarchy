@@ -19,5 +19,5 @@ Magnetic Disk | Utilizes the Advanced Format standard with 4K sectors. Storage c
   - [ ] Translation Lookaside Buffer
   - [ ] L2 Cache
   - [ ] Main Memory
-  - [ ] I/O Buffer
+  - [X] I/O Buffer
   - [X] Magnetic Disk
