@@ -254,6 +254,7 @@ package Glob_dcls is
 			track_in_disk : IN TRACK;
 			io_read_mm, io_write_mm : IN STD_LOGIC;
 			io_read_disk, io_write_disk : IN STD_LOGIC;
+			reset_N : IN STD_LOGIC;
 			page_out_mm : OUT PAGE;
 			track_out_disk : OUT TRACK;
 			read_complete, write_complete : OUT STD_LOGIC
