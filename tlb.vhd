@@ -23,35 +23,35 @@ architecture TLB_arch of TLB is
 
 	begin
 
-	index <= to_integer(unsigned(addr_in(8 downto 0)));
+		index <= to_integer(unsigned(addr_in(8 downto 0)));
 
-	process(reset_N, tlb_read, tlb_write)
-	begin
-		if(reset_N'event and reset_N = '0')
-		then
-			contents <= (others => U_word);
-
-		elsif(tlb_read'event and tlb_read = '1')
-		then
-			if(contents(index) /= U_word)
+		process(reset_N, tlb_read, tlb_write)
+		begin
+			if(reset_N'event and reset_N = '0')
 			then
-				found <= '1';
-				addr_out <= contents(index) after TLB_DELAY;
+				contents <= (others => U_word);
+
+			elsif(tlb_read'event and tlb_read = '1')
+			then
+				if(contents(index) /= U_word)
+				then
+					found <= '1' after TLB_DELAY;
+					addr_out <= contents(index);
+
+				else
+					found <= '0' after TLB_delay;
+					addr_out <= U_word;
+
+				end if;
+
+			elsif(tlb_write'event and tlb_write = '1')
+			then
+				contents(index) <= addr_in after TLB_DELAY;
 
 			else
-				found <= '0';
-				addr_out <= U_word after TLB_delay;
-
-			end if;
-
-		elsif(tlb_write'event and tlb_write = '1')
-		then
-			contents(index) <= addr_in after TLB_DELAY;
-
-		else
-			null;
+				null;
 	
-		end if;
-	end process;
+			end if;
+		end process;
 
 end TLB_arch;
