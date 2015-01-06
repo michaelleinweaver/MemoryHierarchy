@@ -10,24 +10,24 @@ entity MemController is
 	port(
 		addr_in_mmu 																		: IN word;
 		controller_enable_read, controller_enable_write : IN STD_LOGIC;
-		page_lookup_needed 															: IN STD_LOGIC;
-		mm_page_found																		: IN STD_LOGIC;
-		clk																							: IN STD_LOGIC;
-		l2_read_complete, l2_write_complete							: IN STD_LOGIC;
-		mm_read_complete, mm_write_complete							: IN STD_LOGIC;
-		iobuf_read_complete, iobuf_write_complete				: IN STD_LOGIC;
-		disk_read_complete, disk_write_complete					: IN STD_LOGIC;
-		addr_out_cpu 																		: OUT word;
-		reset_N																					: OUT STD_LOGIC;
-		mmu_enable, mm_page_query 											: OUT STD_LOGIC;
-		tlb_read, tlb_write 														: OUT STD_LOGIC;
-		l2_read_mm, l2_write_mm 												: OUT STD_LOGIC;
-		l2_read_cpu, l2_write_cpu 											: OUT STD_LOGIC;
-		mm_read_io, mm_write_io 												: OUT STD_LOGIC;
-		mm_read_cache, mm_write_cache 									: OUT STD_LOGIC;
-		iobuf_read_mm, iobuf_write_mm 									: OUT STD_LOGIC;
-		iobuf_read_disk, iobuf_write_disk 							: OUT STD_LOGIC;
-		disk_read, disk_write 													: OUT STD_LOGIC
+		page_lookup_needed 				: IN STD_LOGIC;
+		mm_page_found					: IN STD_LOGIC;
+		clk						: IN STD_LOGIC;
+		l2_read_complete, l2_write_complete		: IN STD_LOGIC;
+		mm_read_complete, mm_write_complete		: IN STD_LOGIC;
+		iobuf_read_complete, iobuf_write_complete	: IN STD_LOGIC;
+		disk_read_complete, disk_write_complete		: IN STD_LOGIC;
+		addr_out_cpu 					: OUT word;
+		reset_N						: OUT STD_LOGIC;
+		mmu_enable, mm_page_query 			: OUT STD_LOGIC;
+		tlb_read, tlb_write 				: OUT STD_LOGIC;
+		l2_read_mm, l2_write_mm 			: OUT STD_LOGIC;
+		l2_read_cpu, l2_write_cpu 			: OUT STD_LOGIC;
+		mm_read_io, mm_write_io 			: OUT STD_LOGIC;
+		mm_read_cache, mm_write_cache 			: OUT STD_LOGIC;
+		iobuf_read_mm, iobuf_write_mm 			: OUT STD_LOGIC;
+		iobuf_read_disk, iobuf_write_disk 		: OUT STD_LOGIC;
+		disk_read, disk_write 				: OUT STD_LOGIC
 	);
 end MemController;
 
@@ -41,9 +41,9 @@ architecture MemController_arch of MemController is
 
 	with addr_in_mmu(31 downto 30) select
 		next_state_read <= "10000" when "11",
-											 "01110" when "10",
-											 "01100" when "01",
-											 "01010" when others;
+				   "01110" when "10",
+				   "01100" when "01",
+				   "01010" when others;
 
 	-- Signal generating process
 	process
