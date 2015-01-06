@@ -71,6 +71,8 @@ begin
 		-- Write arbitrary data to an arbitrary address, then read it back to ensure
 		-- the data was written.
 
+		wait for 5 ns;
+
 		addr_in <= (4 => '1', 19 => '1', 22 => '1', others => '0');
 
 		din <= (others => "11001100");
@@ -83,6 +85,8 @@ begin
 
 		disk_write <= '0';
 
+		wait for 5 ns;
+
 		disk_read <= '1';
 
 		wait until read_complete'event and read_complete <= '1';
@@ -93,6 +97,8 @@ begin
 			report "Disk read did not result in correct data being returned" severity ERROR;
 
 		-- End disk write testing
+
+		wait for 5 ns;
 
 	end process;
 end MagDisk_test;
