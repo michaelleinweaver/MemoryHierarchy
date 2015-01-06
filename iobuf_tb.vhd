@@ -72,6 +72,8 @@ begin
 		assert page_out_mm = page_out_expected
 			report "Buffer contents were not reset (mm output)." severity ERROR;
 
+		wait for 5 ns;
+
 		io_read_disk <= '1';
 
 		track_out_expected <= (others => (others => '0'));
@@ -90,17 +92,21 @@ begin
 		-- Write arbitrary data to an arbitrary address, then read it back to ensure
 		-- the data was written.
 
+		wait for 5 ns;
+
 		addr_in <= (7 => '1', 12 => '1', 14 => '1', others => '0');
 
 		page_in_mm <= (others => "11110000");
 
-		page_out_expected <= page_in_mm;
+		page_out_expected <= (others => "11110000");
 
 		io_write_mm <= '1';
 
 		wait until write_complete'event and write_complete = '1';
 
 		io_write_mm <= '0';
+
+		wait for 5 ns;
 
 		io_read_mm <= '1';
 
@@ -119,7 +125,7 @@ begin
 
 		track_in_disk <= (others => "11110000");
 
-		track_out_expected <= track_in_disk;
+		track_out_expected <= (others => "11110000");
 
 		io_write_disk <= '1';
 
