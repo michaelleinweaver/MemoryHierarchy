@@ -46,28 +46,28 @@ architecture IOBuf_arch of IOBuf is
 			page_out_mm <= contents after BUFFER_READ_DELAY;
 
 			-- Reset the signal after one clock period
-			read_complete <= '1' after 0 ns, '0' after clock_period;
+			read_complete <= '1' after BUFFER_READ_DELAY, '0' after (BUFFER_READ_DELAY + clock_period);
 
 		elsif(io_read_disk'event and io_read_disk = '1')
 		then
 			track_out_disk <= contents after BUFFER_READ_DELAY;	
 
 			-- Reset the signal after one clock period
-			read_complete <= '1' after 0 ns, '0' after clock_period;
+			read_complete <= '1' after BUFFER_READ_DELAY, '0' after (BUFFER_READ_DELAY + clock_period);
 
 		elsif(io_write_mm'event and io_write_mm = '1')
 		then
 			contents <= page_in_mm after BUFFER_WRITE_DELAY;
 
 			-- Reset the signal after one clock period
-			write_complete <= '1' after 0 ns, '0' after clock_period;
+			write_complete <= '1' after BUFFER_WRITE_DELAY, '0' after (BUFFER_WRITE_DELAY + clock_period);
 
 		elsif(io_write_disk'event and io_write_disk = '1')
 		then
 			contents <= track_in_disk after BUFFER_WRITE_DELAY;
 
 			-- Reset the signal after one clock period
-			write_complete <= '1' after 0 ns, '0' after clock_period;
+			write_complete <= '1' after BUFFER_WRITE_DELAY, '0' after (BUFFER_WRITE_DELAY + clock_period);
 
 		else
 			null;
