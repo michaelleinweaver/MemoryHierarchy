@@ -53,14 +53,12 @@ architecture MagDisk_arch of MagDisk is
 			then
 				CONTENTS(addr_sector)(addr_track) <= din;
 
-				-- Reset the signal after one clock period
 				write_complete <= '1' after write_latency;
 
 			elsif(disk_read'event and disk_read = '1')
 			then
 				dout <= CONTENTS(addr_sector)(addr_track);
 
-				-- Reset the signal after one clock period
 				read_complete <= '1' after read_latency;
 
 			else
