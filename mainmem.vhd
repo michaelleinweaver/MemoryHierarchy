@@ -29,93 +29,83 @@ architecture MainMem_arch of MainMem is
 
 	-- Assume big endian
 	signal byte_three, byte_two, byte_one, byte_zero : Byte;
+
 	signal address_start : natural;
-	signal MAIN_MEMORY_DELAY_SPLIT, clock_period : time;
 
 	begin
 
-	address_start <= to_integer(unsigned(addr_in(7 downto 0)));
+		address_start <= to_integer(unsigned(addr_in(7 downto 0)));
 
-	MAIN_MEMORY_DELAY_SPLIT <= MAIN_MEMORY_DELAY / 4;
-
-	clock_period <= 2 * CLK_PERIOD;
-
-	process(mem_read_buffer, mem_read_cache, mem_write_buffer, mem_write_cache, page_query)
-	begin
-		if(reset_N'event and reset_N = '0')
-		then
-			contents <= (others => (others => '0'));
-
+		process(mem_read_buffer, mem_read_cache, mem_write_buffer, mem_write_cache, page_query)
+		begin
 			read_complete <= '0';
 
 			write_complete <= '0';
 
-		elsif(page_query'event and page_query = '1')
-		then
-			if(page_table(address_start)(7 downto 0) = addr_in(7 downto 0) and
-					page_table(address_start)(8) = '1')
+			if(reset_N'event and reset_N = '0')
 			then
-				page_found <= '1';
+				contents <= (others => (others => '0'));
+
+			elsif(page_query'event and page_query = '1')
+			then
+				if(page_table(address_start)(7 downto 0) = addr_in(7 downto 0) and
+					page_table(address_start)(8) = '1')
+				then
+					page_found <= '1';
+	
+				else
+					page_found <= '0';
+
+				end if;
+
+			elsif(mem_read_buffer'event and mem_read_buffer = '1')
+			then
+				page_out_buffer <= contents;
+
+				read_complete <= '1' after MAIN_MEMORY_DELAY;
+
+			elsif(mem_read_cache'event and mem_read_cache = '1')
+			then
+				byte_three <= contents(address_start);
+				byte_two <= contents(address_start + 8);
+				byte_one <= contents(address_start + 16);
+				byte_zero <= contents(address_start + 24);
+
+				dout_l2cache <= byte_three & byte_two & byte_one & byte_zero;
+
+				read_complete <= '1' after MAIN_MEMORY_DELAY;
+
+			elsif(mem_write_buffer'event and mem_write_buffer = '1')
+			then
+				-- Write addresses for each of the entries
+				for I in 0 to 127 loop
+					page_table(I) <= '1' & std_logic_vector(to_unsigned(I, 8));
+				end loop;
+
+				contents <= page_in_buffer;
+
+				write_complete <= '1' after MAIN_MEMORY_DELAY;
+
+			elsif(mem_write_cache'event and mem_write_cache = '1')
+			then
+				byte_three <= din_l2cache(31 downto 24);
+				byte_two <= din_l2cache(23 downto 16);
+				byte_one <= din_l2cache(15 downto 8);
+				byte_zero <= din_l2cache(7 downto 0);
+
+				contents(address_start) <= byte_three;
+				contents(address_start + 8) <= byte_two;
+				contents(address_start + 16) <= byte_one;
+				contents(address_start + 24) <= byte_zero;	
+
+				page_table(address_start) <= '1' & addr_in(7 downto 0);
+
+				write_complete <= '1' after MAIN_MEMORY_DELAY;
 
 			else
-				page_found <= '0';
+				null;
 
 			end if;
 
-		elsif(mem_read_buffer'event and mem_read_buffer = '1')
-		then
-			page_out_buffer <= contents after MAIN_MEMORY_DELAY;
-
-			-- Reset the signal after one clock period
-			read_complete <= '1' after MAIN_MEMORY_DELAY, '0' after (MAIN_MEMORY_DELAY + clock_period);
-
-		elsif(mem_read_cache'event and mem_read_cache = '1')
-		then
-			byte_three <= contents(address_start);
-			byte_two <= contents(address_start + 8);
-			byte_one <= contents(address_start + 16);
-			byte_zero <= contents(address_start + 24);
-
-			dout_l2cache <= byte_three & byte_two & byte_one & byte_zero after MAIN_MEMORY_DELAY;
-
-			-- Reset the signal after one clock period
-			read_complete <= '1' after MAIN_MEMORY_DELAY, '0' after (MAIN_MEMORY_DELAY + clock_period);
-
-		elsif(mem_write_buffer'event and mem_write_buffer = '1')
-		then
-			-- Write addresses for each of the entries
-			for I in 0 to 127 loop
-				page_table(I) <= '1' & std_logic_vector(to_unsigned(I, 8));
-			end loop;
-
-			contents <= page_in_buffer after MAIN_MEMORY_DELAY;
-
-			-- Reset the signal after one clock period
-			write_complete <= '1' after MAIN_MEMORY_DELAY, '0' after (MAIN_MEMORY_DELAY + clock_period);
-
-		elsif(mem_write_cache'event and mem_write_cache = '1')
-		then
-			byte_three <= din_l2cache(31 downto 24);
-			byte_two <= din_l2cache(23 downto 16);
-			byte_one <= din_l2cache(15 downto 8);
-			byte_zero <= din_l2cache(7 downto 0);
-
-			contents(address_start) <= byte_three after MAIN_MEMORY_DELAY_SPLIT;
-			contents(address_start + 8) <= byte_two after MAIN_MEMORY_DELAY_SPLIT;
-			contents(address_start + 16) <= byte_one after MAIN_MEMORY_DELAY_SPLIT;
-			contents(address_start + 24) <= byte_zero after MAIN_MEMORY_DELAY_SPLIT;	
-
-			page_table(address_start) <= '1' & addr_in(7 downto 0);
-
-			-- Reset the signal after one clock period
-			write_complete <= '1' after MAIN_MEMORY_DELAY, '0' after (MAIN_MEMORY_DELAY + clock_period);
-
-		else
-
-			null;
-
-		end if;
-
-	end process;
-
+		end process;
 end MainMem_arch;
