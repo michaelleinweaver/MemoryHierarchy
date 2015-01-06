@@ -59,7 +59,7 @@ architecture L2Cache_arch of L2Cache is
 				dout_mainmem <= cache_entry(31 downto 0) after L2_DELAY;
 
 				-- Reset the signal after one clock period
-				read_complete <= '1' after 0 ns, '0' after clock_period;
+				read_complete <= '1' after L2_DELAY, '0' after (L2_DELAY + clock_period);
 
 			else
 				read_complete <= '0';
@@ -73,7 +73,7 @@ architecture L2Cache_arch of L2Cache is
 				dout_cpu <= cache_entry(31 downto 0) after L2_DELAY;
 
 				-- Reset the signal after one clock period
-				read_complete <= '1' after 0 ns, '0' after clock_period;
+				read_complete <= '1' after L2_DELAY, '0' after (L2_DELAY + clock_period);
 
 			else
 				read_complete <= '0';
@@ -87,7 +87,7 @@ architecture L2Cache_arch of L2Cache is
 			cache_entry(56) <= '1' after L2_SPLIT_DELAY;
 
 			-- Reset the signal after one clock period
-			write_complete <= '1' after 0 ns, '0' after clock_period;
+			write_complete <= '1' after L2_DELAY, '0' after (L2_DELAY + clock_period);
 
 		elsif(cache_write_cpu'event and cache_write_cpu = '1')
 		then
@@ -96,7 +96,7 @@ architecture L2Cache_arch of L2Cache is
 			cache_entry(56) <= '1' after L2_SPLIT_DELAY;
 
 			-- Reset the signal after one clock period
-			write_complete <= '1' after 0 ns, '0' after clock_period;
+			write_complete <= '1' after L2_DELAY, '0' after (L2_DELAY + clock_period);
 
 		else
 			null;
