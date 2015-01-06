@@ -18,22 +18,22 @@ end MMU;
 architecture MMU_arch of MMU is
 	begin
 
-	-- Send address out to the TLB so we can check if that address exists
-	addr_out_tlb <= addr_in_cpu;
+		-- Send address out to the TLB so we can check if that address exists
+		addr_out_tlb <= addr_in_cpu;
 
-	process(enable)
-	begin
-		if(tlb_found = '1')
-		then
-			addr_out_ctrl <= addr_in_tlb;
-			page_lookup_needed <= '0';
+		process(enable)
+		begin
+			if(tlb_found = '1')
+			then
+				addr_out_ctrl <= addr_in_tlb;
+				page_lookup_needed <= '0';
 
-		else
-			addr_out_ctrl <= U_word;
-			page_lookup_needed <= '1';
+			else
+				addr_out_ctrl <= U_word;
+				page_lookup_needed <= '1';
 
-		end if;
+			end if;
 		
-	end process;
+		end process;
 
 end MMU_arch;
