@@ -36,7 +36,7 @@ architecture MainMem_arch of MainMem is
 
 		address_start <= to_integer(unsigned(addr_in(7 downto 0)));
 
-		process(mem_read_buffer, mem_read_cache, mem_write_buffer, mem_write_cache, page_query)
+		process(reset_N, mem_read_buffer, mem_read_cache, mem_write_buffer, mem_write_cache, page_query)
 		begin
 			read_complete <= '0';
 
@@ -46,6 +46,16 @@ architecture MainMem_arch of MainMem is
 			then
 				contents <= (others => (others => '0'));
 
+				page_table <= (others => (others => '0'));
+
+				byte_three <= Zero_byte;
+
+				byte_two <= Zero_byte;
+
+				byte_one <= Zero_byte;
+
+				byte_zero <= Zero_byte;
+				
 			elsif(page_query'event and page_query = '1')
 			then
 				if(page_table(address_start)(7 downto 0) = addr_in(7 downto 0) and
