@@ -148,7 +148,30 @@ begin
 
 		-- Begin page query testing
 
-		
+		addr_in <= (3 => '1', 7 => '1', 16 => '1', others => '0');
+
+		page_query <= '1';
+
+		wait for 5 ns;
+
+		assert page_found = '1'
+			report "Page table was not correctly updated." severity ERROR;
+
+		page_query <= '0';
+
+		wait for 5 ns;
+
+		addr_in <= (7 => '1', 15 => '1', others => '0');
+
+		page_query <= '1';
+
+		wait for 5 ns;
+
+		assert page_found = '0'
+			report "Page table was not correctly reset (found nonexistant page)." 
+			severity ERROR;
+
+		page_query <= '0';
 
 		-- End page query testing
 
