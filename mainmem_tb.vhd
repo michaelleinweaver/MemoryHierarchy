@@ -98,13 +98,57 @@ begin
 		-- Write arbitrary data to an arbitrary address, then read it back to ensure
 		-- the data was written.
 
-		-- TODO
+		-- Buffer side
+
+		page_in_buffer <= (others => (0=>'1', 4=>'1', 5=>'1', others=>'0'));
+
+		page_out_expected <= (others => (0=>'1', 4=>'1', 5=>'1', others=>'0'));
+
+		addr_in <= (1 => '1', 8 => '1', 26 => '1', others => '0');
+
+		mem_write_buffer <= '1';
+
+		wait until write_complete'event and write_complete = '1';
+
+		mem_write_buffer <= '0';
+
+		mem_read_buffer <= '1';
+
+		wait until read_complete'event and read_complete = '1';
+
+		mem_read_buffer <= '0';
+
+		assert page_out_buffer = page_out_expected
+			report "Memory contents were not correctly written (buffer)." severity ERROR;
+
+		-- Cache side
+
+		din_l2cache <= (2=>'1', 6=>'1', 10=>'1', 22=>'1', others=>'0');
+
+		dout_expected <= (2=>'1', 6=>'1', 10=>'1', 22=>'1', others=>'0');
+
+		addr_in <= (3 => '1', 7 => '1', 16 => '1', others => '0');
+
+		mem_write_cache <= '1';
+
+		wait until write_complete'event and write_complete = '1';
+
+		mem_write_cache <= '0';
+
+		mem_read_cache <= '1';
+
+		wait until read_complete'event and read_complete = '1';
+
+		mem_read_cache <= '0';
+
+		assert dout_expected = dout_l2cache
+			report "Memory contents were not correctly written (cache)." severity ERROR;		
 
 		-- End memory read/write testing
 
 		-- Begin page query testing
 
-		-- TODO
+		
 
 		-- End page query testing
 
