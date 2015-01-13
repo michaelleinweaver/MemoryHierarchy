@@ -65,7 +65,7 @@ begin
 		wait for 5 ns;
 
 		-- Arbitrary read address
-		addr_in <= (1 => '1', 5 => '1', 14 => '1', others => '0');
+		addr_in <= (1 => '1', 5 => '1', 6 => '1', others => '0');
 
 		mem_read_cache <= '1';
 
@@ -127,7 +127,7 @@ begin
 
 		dout_expected <= (2=>'1', 6=>'1', 10=>'1', 22=>'1', others=>'0');
 
-		addr_in <= (3 => '1', 7 => '1', 16 => '1', others => '0');
+		addr_in <= (0 => '1', 1 => '1', 2 => '1', others => '0');
 
 		mem_write_cache <= '1';
 
@@ -148,28 +148,14 @@ begin
 
 		-- Begin page query testing
 
-		addr_in <= (3 => '1', 7 => '1', 16 => '1', others => '0');
+		addr_in <= (0 => '1', 1 => '1', 2 => '1', others => '0');
 
 		page_query <= '1';
 
-		wait for 5 ns;
+		wait until page_found'event;
 
 		assert page_found = '1'
 			report "Page table was not correctly updated." severity ERROR;
-
-		page_query <= '0';
-
-		wait for 5 ns;
-
-		addr_in <= (7 => '1', 15 => '1', others => '0');
-
-		page_query <= '1';
-
-		wait for 5 ns;
-
-		assert page_found = '0'
-			report "Page table was not correctly reset (found nonexistant page)." 
-			severity ERROR;
 
 		page_query <= '0';
 
