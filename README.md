@@ -21,7 +21,6 @@ Magnetic Disk | Utilizes the Advanced Format standard with 4K sectors. Storage c
   - [X] Main Memory
   - [X] I/O Buffer
   - [X] Magnetic Disk
-
 - [ ] Testing and Verification
   - [ ] Memory Controller
   - [ ] Memory Management Unit
