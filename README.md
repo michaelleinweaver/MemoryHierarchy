@@ -13,7 +13,16 @@ Main Memory | Consists of word storage and page table, storage capacity of 4096 
 I/O Buffer | Reduces lost CPU cycles waiting for Magnetic Disk to finish reading/writing. Storage capacity of 4096 Bytes (128 x 8 words).
 Magnetic Disk | Utilizes the Advanced Format standard with 4K sectors. Storage capacity of 4 Gigabytes (1048576 x 8 words).
 
-- [ ] Testing and Verification Status
+- [X] Implementation
+  - [X] Memory Controller
+  - [X] Memory Management Unit
+  - [X] Translation Lookaside Buffer
+  - [X] L2 Cache
+  - [X] Main Memory
+  - [X] I/O Buffer
+  - [X] Magnetic Disk
+
+- [ ] Testing and Verification
   - [ ] Memory Controller
   - [ ] Memory Management Unit
   - [ ] Translation Lookaside Buffer
