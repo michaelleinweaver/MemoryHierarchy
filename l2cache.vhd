@@ -24,23 +24,18 @@ architecture L2Cache_arch of L2Cache is
 
 	signal array_index, tag_value, cache_tag_value : natural;
 
-	signal cache_entry : STD_LOGIC_VECTOR(56 downto 0);
-
 	begin
-
-		array_index <= to_integer(unsigned(index_in));
-
-		tag_value <= to_integer(unsigned(tag_in));
-
-		cache_entry <= contents(array_index);
-
-		cache_tag_value <= to_integer(unsigned(cache_entry(55 downto 32)));
-
 		process(reset_N, cache_read_mm, cache_read_cpu, cache_write_mm, cache_write_cpu)
 		begin
 			read_complete <= '0';
 
 			write_complete <= '0';
+
+			array_index <= to_integer(unsigned(index_in));
+
+			tag_value <= to_integer(unsigned(tag_in));
+
+			cache_tag_value <= to_integer(unsigned(contents(array_index)(55 downto 32)));
 
 			if(reset_N'event and reset_N = '0')
 			then
@@ -48,45 +43,29 @@ architecture L2Cache_arch of L2Cache is
 		
 			elsif(cache_read_mm'event and cache_read_mm = '1')
 			then
-				if(contents(array_index)(56) = '1' and tag_value = cache_tag_value)
-				then
-					dout_mainmem <= cache_entry(31 downto 0);
+				dout_mainmem <= contents(array_index)(31 downto 0);
 
-					read_complete <= '1' after L2_DELAY;
-
-				else
-					read_complete <= '0';
-
-				end if;
+				read_complete <= '1' after L2_DELAY;
 
 			elsif(cache_read_cpu'event and cache_read_cpu = '1')
 			then
-				if(cache_entry(56) = '1' and tag_value = cache_tag_value)
-				then
-					dout_cpu <= cache_entry(31 downto 0);
+				dout_cpu <= contents(array_index)(31 downto 0);
 
-					read_complete <= '1' after L2_DELAY;
-
-				else
-					dout_cpu <= U_word;
-
-					read_complete <= '0' after L2_delay;
-
-				end if;
+				read_complete <= '1' after L2_DELAY;
 
 			elsif(cache_write_mm'event and cache_write_mm = '1')
 			then
-				cache_entry(31 downto 0) <= din_mainmem;
-				cache_entry(55 downto 32) <= tag_in;
-				cache_entry(56) <= '1';
+				contents(array_index)(31 downto 0) <= din_mainmem;
+				contents(array_index)(55 downto 32) <= tag_in;
+				contents(array_index)(56) <= '1';
 
 				write_complete <= '1' after L2_DELAY;
 
 			elsif(cache_write_cpu'event and cache_write_cpu = '1')
 			then
-				cache_entry(31 downto 0) <= din_cpu;
-				cache_entry(55 downto 32) <= tag_in;
-				cache_entry(56) <= '1';
+				contents(array_index)(31 downto 0) <= din_cpu;
+				contents(array_index)(55 downto 32) <= tag_in;
+				contents(array_index)(56) <= '1';
 
 				write_complete <= '1' after L2_DELAY;
 
