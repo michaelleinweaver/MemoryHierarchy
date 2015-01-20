@@ -25,7 +25,7 @@ Magnetic Disk | Utilizes the Advanced Format standard with 4K sectors. Storage c
   - [ ] Memory Controller
   - [ ] Memory Management Unit
   - [ ] Translation Lookaside Buffer
-  - [ ] L2 Cache
+  - [X] L2 Cache
   - [X] Main Memory
   - [X] I/O Buffer
   - [X] Magnetic Disk
