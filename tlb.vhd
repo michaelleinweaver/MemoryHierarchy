@@ -22,25 +22,26 @@ architecture TLB_arch of TLB is
 	signal index : natural;
 
 	begin
-
-		index <= to_integer(unsigned(addr_in(8 downto 0)));
-
 		process(reset_N, tlb_read, tlb_write)
 		begin
+			index <= to_integer(unsigned(addr_in(8 downto 0)));
+
 			if(reset_N'event and reset_N = '0')
 			then
 				contents <= (others => U_word);
 
+				found <= '0';
+
 			elsif(tlb_read'event and tlb_read = '1')
 			then
+				addr_out <= contents(index);
+
 				if(contents(index) /= U_word)
 				then
 					found <= '1' after TLB_DELAY;
-					addr_out <= contents(index);
 
 				else
-					found <= '0' after TLB_delay;
-					addr_out <= U_word;
+					found <= '0' after TLB_DELAY;
 
 				end if;
 
