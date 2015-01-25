@@ -97,6 +97,9 @@ begin
 		assert addr_out = addr_out_expected 
 			report "New address was not correctly written." SEVERITY ERROR;
 
+		assert found = '1'
+			report "Found signal was not correctly raised." SEVERITY ERROR;
+
 		-- End lookup testing
 
 		wait for 5 ns;
