@@ -240,9 +240,9 @@ package Glob_dcls is
 
 		component MMU IS
 			port(
-				addr_in_cpu, addr_in_ctrl : IN word;
+				addr_in_cpu, addr_in_tlb : IN word;
 				enable, tlb_found : in STD_LOGIC;
-				addr_out_cpu, addr_out_ctrl : OUT word;
+				addr_out_tlb, addr_out_ctrl : OUT word;
 				page_lookup_needed : out std_logic
 			);
 		end component;
