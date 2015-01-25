@@ -23,14 +23,21 @@ architecture MMU_arch of MMU is
 
 		process(enable)
 		begin
-			if(tlb_found = '1')
+			if(enable'event and enable = '1')
 			then
-				addr_out_ctrl <= addr_in_tlb;
-				page_lookup_needed <= '0';
+				if(tlb_found = '1')
+				then
+					addr_out_ctrl <= addr_in_tlb;
+					page_lookup_needed <= '0';
+
+				else
+					addr_out_ctrl <= U_word;
+					page_lookup_needed <= '1';
+
+				end if;
 
 			else
-				addr_out_ctrl <= U_word;
-				page_lookup_needed <= '1';
+				null;
 
 			end if;
 		
