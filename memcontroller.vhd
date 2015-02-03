@@ -8,7 +8,7 @@ use work.Glob_dcls.all;
 
 entity MemController is
 	port(
-		addr_in_mmu 																		: IN word;
+		addr_in_mmu 					: IN word;
 		controller_enable_read, controller_enable_write : IN STD_LOGIC;
 		page_lookup_needed 				: IN STD_LOGIC;
 		mm_page_found					: IN STD_LOGIC;
@@ -31,7 +31,6 @@ entity MemController is
 	);
 end MemController;
 
--- TODO Write all contents of memory back onto disk?
 architecture MemController_arch of MemController is
 	signal current_state, next_state, next_state_read : STD_LOGIC_VECTOR(4 downto 0);
 
@@ -324,6 +323,8 @@ architecture MemController_arch of MemController is
 				reading <= '1';
 				
 				l2_read_cpu <= '1';
+
+				addr_out_cpu <= addr_in_mmu;
 
 				next_state <= "10000";
 
