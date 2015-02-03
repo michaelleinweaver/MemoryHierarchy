@@ -45,10 +45,17 @@ architecture MemController_arch of MemController is
 				   "01010" when others;
 
 	-- Signal generating process
-	process
-	begin
+	process(clk)
+ 	begin
+		if(clk'event and clk = '1')
+		then
+
+		if(current_state = "XXXXX" or current_state = "UUUUU")
+		then
+			next_state <= "00000";
+
 		-- Initial reset_N state
-		if(current_state = "00000")
+		elsif(current_state = "00000")
 		then
 			next_state <= "00001";
 
@@ -63,19 +70,47 @@ architecture MemController_arch of MemController is
 		then
 			next_state <= "00010";
 
-			reset_N <= '0';
+			reset_N <= '1';
 
 		-- Wait for activation state
 		elsif(current_state = "00010")
 		then
 			-- Reset all signals from states that transition back to this state
+			addr_out_cpu <= (others => '0');
+
+			mmu_enable <= '0';
+
+			mm_page_query <= '0';
+
+			tlb_read <= '0';
+
+			tlb_write <= '0';
+
+			l2_read_mm <= '0';
+
+			l2_write_mm <= '0';
+
 			l2_read_cpu <= '0';
 
 			l2_write_cpu <= '0';
 
+			mm_read_io <= '0';
+
+			mm_write_io <= '0';
+
+			mm_read_cache <= '0';
+
 			mm_write_cache <= '0';
 
+			iobuf_read_mm <= '0';
+
 			iobuf_write_mm <= '0';
+
+			iobuf_read_disk <= '0';
+
+			iobuf_write_disk <= '0';
+
+			disk_read <= '0';
 
 			disk_write <= '0';
 
@@ -223,7 +258,7 @@ architecture MemController_arch of MemController is
 				next_state <= "01100";
 
 			else
-				if(mm_read_complete = '1')
+				if(iobuf_read_complete = '1')
 				then
 					reading <= '0';
 
@@ -333,7 +368,7 @@ architecture MemController_arch of MemController is
 				then
 					reading <= '0';
 
-					next_state <= "00010";
+					next_state <= "00001";
 
 				else
 					next_state <= "10000";
@@ -504,7 +539,7 @@ architecture MemController_arch of MemController is
 					next_state <= "10110";
 
 			else
-				if(disk_read_complete = '1')
+				if(iobuf_read_complete = '1')
 				then
 					next_state <= "10111";
 
@@ -544,19 +579,23 @@ architecture MemController_arch of MemController is
 			next_state <= "00000";
 
 		end if;
+
+		end if;
+
+		current_state <= next_state;
 		
 		-- Wait for a change in the current state
-		wait until current_state'event;
+		-- wait until current_state'event;
 	end process;
 
 	-- State update process
-	process(clk)
-	begin
-		if(clk'event AND clk = '1')
-		then
-			current_state <= next_state;
+	--process(clk)
+	--begin
+	--	if(clk'event AND clk = '1')
+	--	then
+	--		current_state <= next_state;
 
-		end if;
-	end process;
+	--	end if;
+	--end process;
 
 end MemController_arch;
