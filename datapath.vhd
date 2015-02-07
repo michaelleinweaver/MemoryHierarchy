@@ -16,8 +16,10 @@ entity datapath is
     PCUpdate   : in  std_logic;         -- write_enable of PC
 
     IorD       : in  std_logic;         -- Address selection for memory (PC vs. store address)
-    MemRead    : in  std_logic;		-- read_enable for memory
-    MemWrite   : in  std_logic;		-- write_enable for memory
+    InstMemRead    : in  std_logic;		-- read_enable for memory
+    InstMemWrite   : in  std_logic;		-- write_enable for memory
+    DataMemRead : in std_logic;
+    DataMemWrite : in std_logic;
 
     IRWrite    : in  std_logic;         -- write_enable for Instruction Register
     MemtoReg   : in  std_logic_vector(1 downto 0);  -- selects ALU or MEMORY to write to register file.
