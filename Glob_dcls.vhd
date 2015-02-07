@@ -136,7 +136,17 @@ package Glob_dcls is
   	   );
 		end component;
 	
-		component mem IS
+		component INST_MEM IS
+   		port(
+				MemRead	 : IN std_logic;
+	 			MemWrite : IN std_logic;
+	 			d_in		 : IN   word;		 
+	 			address	 : IN   word;
+	 			d_out		 : OUT  word 
+			);
+		END component;
+
+		component DATA_MEM IS
    		port(
 				MemRead	 : IN std_logic;
 	 			MemWrite : IN std_logic;
@@ -154,9 +164,10 @@ package Glob_dcls is
    		 	PCUpdate   : in  std_logic;         -- write_enable of PC
 
     		IorD       : in  std_logic;         -- Address selection for memory (PC vs. store address)
-    		MemRead    : in  std_logic;		-- read_enable for memory
-    		MemWrite   : in  std_logic;		-- write_enable for memory
-
+    		InstMemRead    : in  std_logic;		-- read_enable for memory
+    		InstMemWrite   : in  std_logic;		-- write_enable for memory
+		DataMemRead : in std_logic;
+		DataMemWrite : in std_logic;
     		IRWrite    : in  std_logic;         -- write_enable for Instruction Register
     		MemtoReg   : in  std_logic_vector(1 downto 0);  -- selects ALU or MEMORY to write to register file.
     		RegDst     : in  std_logic_vector(1 downto 0);  -- selects rt or rd as destination of operation
@@ -174,17 +185,19 @@ package Glob_dcls is
 
 		component control is 
    		port(
-      	clk   	    : IN STD_LOGIC; 
-      	reset_N	    : IN STD_LOGIC; 
-        
-      	opcode_in   : IN opcode;     -- declare type for the 6 most significant bits of IR
-      	funct_in    : IN opcode;     -- declare type for the 6 least significant bits of IR 
+      		clk   	    : IN STD_LOGIC; 
+      		reset_N	    : IN STD_LOGIC; 
+      		opcode_in   : IN opcode;     -- declare type for the 6 most significant bits of IR
+      		funct_in    : IN opcode;     -- declare type for the 6 least significant bits of IR 
      		zero        : IN STD_LOGIC;
+		addrin_mem  : IN word;
         
      		PCUpdate    : OUT STD_LOGIC; -- this signal controls whether PC is updated or not
      		IorD        : OUT STD_LOGIC;
-     		MemRead     : OUT STD_LOGIC;
-     		MemWrite    : OUT STD_LOGIC;
+     		InstMemRead : OUT STD_LOGIC;
+     		InstMemWrite : OUT STD_LOGIC;
+		DataMemRead : OUT STD_LOGIC;
+		DataMemWrite : OUT STD_LOGIC;
      		IRWrite     : OUT STD_LOGIC;
      		MemtoReg    : OUT STD_LOGIC_VECTOR (1 downto 0); -- the extra bit is for JAL
      		RegDst      : OUT STD_LOGIC_VECTOR (1 downto 0); -- the extra bit is for JAL
