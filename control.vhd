@@ -8,16 +8,19 @@ USE work.Glob_dcls.all;
 
 entity control is 
    port(
-      clk   	    : IN STD_LOGIC; 
-      reset_N	    : IN STD_LOGIC; 
-      opcode_in   : IN opcode;     -- declare type for the 6 most significant bits of IR
-      funct_in    : IN opcode;     -- declare type for the 6 least significant bits of IR 
+      	clk   	    : IN STD_LOGIC; 
+      	reset_N	    : IN STD_LOGIC; 
+      	opcode_in   : IN opcode;     -- declare type for the 6 most significant bits of IR
+      	funct_in    : IN opcode;     -- declare type for the 6 least significant bits of IR 
      	zero        : IN STD_LOGIC;
+	addrin_mem  : IN word;
         
      	PCUpdate    : OUT STD_LOGIC; -- this signal controls whether PC is updated or not
      	IorD        : OUT STD_LOGIC;
-     	MemRead     : OUT STD_LOGIC;
-     	MemWrite    : OUT STD_LOGIC;
+     	InstMemRead : OUT STD_LOGIC;
+     	InstMemWrite : OUT STD_LOGIC;
+	DataMemRead : OUT STD_LOGIC;
+	DataMemWrite : OUT STD_LOGIC;
      	IRWrite     : OUT STD_LOGIC;
      	MemtoReg    : OUT STD_LOGIC_VECTOR (1 downto 0); -- the extra bit is for JAL
      	RegDst      : OUT STD_LOGIC_VECTOR (1 downto 0); -- the extra bit is for JAL
@@ -111,11 +114,11 @@ begin
 	process
 	begin	
 		-- If we're in fetch
-	  if(current_state = "0000")
+	  	if(current_state = "0000")
 		then
-		  RegWrite <= '0';
+		  	RegWrite <= '0';
 
-		  MemToReg <= "00";
+		  	MemToReg <= "00";
 
 			IorD <= '1';
 
