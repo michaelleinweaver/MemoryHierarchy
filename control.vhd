@@ -4,6 +4,7 @@
 LIBRARY IEEE; 
 USE IEEE.std_logic_1164.all;
 USE IEEE.std_logic_unsigned.all;
+USE IEEE.numeric_std.all;
 USE work.Glob_dcls.all;
 
 entity control is 
@@ -13,7 +14,8 @@ entity control is
       	opcode_in   : IN opcode;     -- declare type for the 6 most significant bits of IR
       	funct_in    : IN opcode;     -- declare type for the 6 least significant bits of IR 
      	zero        : IN STD_LOGIC;
-	addrin_mem  : IN word;
+	controller_action_complete : IN STD_LOGIC;
+	addr_in     : IN word;
         
      	PCUpdate    : OUT STD_LOGIC; -- this signal controls whether PC is updated or not
      	IorD        : OUT STD_LOGIC;
@@ -28,7 +30,11 @@ entity control is
      	ALUSrcA     : OUT STD_LOGIC_VECTOR (1 downto 0);
      	ALUSrcB     : OUT STD_LOGIC_VECTOR (1 downto 0);
      	ALUcontrol  : OUT ALU_opcode;
-     	PCSource    : OUT STD_LOGIC_VECTOR (1 downto 0)
+     	PCSource    : OUT STD_LOGIC_VECTOR (1 downto 0);
+	controller_read_enable : OUT STD_LOGIC;
+	controller_write_enable : OUT STD_LOGIC;
+	addr_out : OUT word;
+	DataMemLoc : out std_logic
 	);
 end control;
 
@@ -45,70 +51,70 @@ begin
 	-- ALU source selection logic
 	with funct_in select 
 		ALUSrcBWhenShift <= "10" when "000000",
-										 		"10" when "000010",
-										 		"01" when others;
+				"10" when "000010",
+				"01" when others;
 
 	with current_state select
 		ALUSrcA <= "00" when "0000",
-						 	 "00" when "0001",
-						 	 "01" when "0010",
-						 	 "01" when "0100",
-						 	 "01" when "0101",
-						 	 "01" when "0111",
-						 	 ALUSrcBWhenShift when others;
+			"00" when "0001",
+			"01" when "0010",
+			"01" when "0100",
+			"01" when "0101",
+			"01" when "0111",
+			ALUSrcBWhenShift when others;
 
 	with current_state select
 		ALUSrcB <= "11" when "0000",
-						 	 "10" when "0001",
-						 	 "01" when "0010",
-						 	 "01" when "0111",
-						 	 "00" when others;
+			"10" when "0001",
+			 "01" when "0010",
+			 "01" when "0111",
+			 "00" when others;
 
 	-- ALU control logic
 	with opcode_in select
 		ALUimmediate_control <= "000" when "001000",
-														"100" when "001100",
-														"101" when others;
+					"100" when "001100",
+					"101" when others;
 
 	with funct_in select
 		ALUrtype_control <= "000" when "100000",
-												"001" when "100010",
-												"100" when "100100",
-												"101" when "100101",
-												"010" when "000000",
-												"011" when "000010",
-								  			ALUImmediate_control when others;
+				"001" when "100010",
+				"100" when "100100",
+				"101" when "100101",
+				"010" when "000000",
+				"011" when "000010",
+				ALUImmediate_control when others;
 
 	with current_state select
 		ALUControl <= "000" when "0000",
-									"000" when "0001",
-									"000" when "0010",
-									"001" when "0100",
-									"001" when "0101",
-									ALUrtype_control when others;
+				"000" when "0001",
+				"000" when "0010",
+				"001" when "0100",
+				"001" when "0101",
+				ALUrtype_control when others;
 									
 	-- next state calculation
 	with current_state select
 		next_state <= "0001" when "0000",
-									next_state_decode when "0001",
-									next_state_mem when "0010",
-									"1010" when "0011",
-									"1011" when "0111",		
-									"1100" when "1000",
-									"0000" when others;	
+				next_state_decode when "0001",
+				next_state_mem when "0010",
+				"1010" when "0011",
+				"1011" when "0111",		
+				"1100" when "1000",
+				"0000" when others;	
 									
 	with opcode_in select
 		next_state_decode <= "0010" when "100011",
-												 "0010" when "101011",
-												 "0011" when "000000",
-												 "0100" when "000101",
-												 "0101" when "000100",
-												 "0110" when "000010",
-												 "0111" when others;		
+				 "0010" when "101011",
+				 "0011" when "000000",
+				 "0100" when "000101",
+				 "0101" when "000100",
+				 "0110" when "000010",
+				 "0111" when others;		
 
 	with opcode_in select
 		next_state_mem <= "1000" when "100011",
-											"1001" when others;				
+				"1001" when others;				
 
 	-- signal-generating process
 	process
@@ -124,7 +130,7 @@ begin
 
 			-- Introduce a small read delay so the PC can stabilize after short
 			-- commands like jump have executed
-			MemRead <= '1' after 1 ns;
+			InstMemRead <= '1' after 1 ns;
 
 			IRWrite <= '1';
 
@@ -139,7 +145,7 @@ begin
 
 			IorD <= '0';
 
-			MemRead <= '0';
+			InstMemRead <= '0';
 
 			PCUpdate <= '0';
 
@@ -156,17 +162,50 @@ begin
 		-- If we're performing a load specifically
 		elsif(current_state = "1000")
 		then
+			-- Pull the data from the location in the hierarchy
+			if(to_integer(unsigned(addr_in(31 downto 16))) > 0)
+			then
+				controller_read_enable <= '1';
+
+				addr_out <= addr_in; 
+
+				wait until controller_action_complete'event and controller_action_complete = '1';
+				
+				controller_read_enable <= '0';
+
+				DataMemLoc <= '1';
+
+			else
+
+				DataMemLoc <= '0';
+
+			end if;
+
 			-- Let the address stabilize
-			MemRead <= '1' after 1 ns;
+			DataMemRead <= '1' after 1 ns;
 	
 			RegDst <= "00";
 
 		-- If we're performing a store specifically
 		elsif(current_state = "1001")
 		then
-		  IorD <= '0' after 2 ns, '1' after 6 ns;
+			-- Store in a location in the hierarchy
+			if(to_integer(unsigned(addr_in(31 downto 16))) > 0)
+			then
+				controller_write_enable <= '1';
+
+				addr_out <= addr_in;
+
+				wait until controller_action_complete'event and controller_action_complete = '1';
+
+				controller_write_enable <= '0';
+
+			else
+				IorD <= '0' after 2 ns, '1' after 6 ns;
 		  
-		  MemWrite <= '1' after 4 ns, '0' after 6 ns;
+		  		DataMemWrite <= '1' after 4 ns, '0' after 6 ns;
+		
+			end if;
 
 		-- If we're performing a BNE
 		elsif(current_state = "0100")
@@ -216,7 +255,7 @@ begin
 
 			PCUpdate <= '0';
 
-			MemRead <= '0';
+			DataMemRead <= '0';
 
 			IorD <= '1';
 
@@ -230,7 +269,7 @@ begin
 			PCUpdate <= '0';
 
 			-- Prevent the memory from reading until we've returned from fetch
-			MemRead <= '0';
+			DataMemRead <= '0';
 
 			-- Ensure the memory has the correct address when fetching
 			IorD <= '1';
