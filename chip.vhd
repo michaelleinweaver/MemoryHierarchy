@@ -8,9 +8,9 @@ USE work.Glob_dcls.all;
 
 entity Chip is
   
-  port (
-    	clk     : in std_logic;
-	reset_N : in std_logic
+  	port (
+    		clk     : IN STD_LOGIC;
+		reset_N : IN STD_LOGIC
 	);
 
 end Chip;
@@ -29,7 +29,7 @@ architecture Chip_arch of Chip is
 
 	-- main memory
 	signal addr_in_mm : word;
-	signal page_in_buffer, page_out_buffer : PAGE;
+	signal page_in_buffer, page_out_buffer : page;
 	signal din_l2cache, dout_l2cache : word;
 	signal mem_read_buffer, mem_read_cache, mem_write_buffer, mem_write_cache : STD_LOGIC;
 	signal mm_page_query, mm_page_found : STD_LOGIC;
@@ -47,14 +47,14 @@ architecture Chip_arch of Chip is
 
 	-- I/O Buffer
 	signal addr_in_iobuf : word;
-	signal page_in_mm, page_out_mm : PAGE;
-	signal track_in_disk, track_out_disk : TRACK;
+	signal page_in_mm, page_out_mm : page;
+	signal track_in_disk, track_out_disk : track;
 	signal io_read_mm, io_write_mm, io_read_disk, io_write_disk : STD_LOGIC;
 	signal io_read_complete, io_write_complete : STD_LOGIC;
 
 	-- Magnetic disk
 	signal disk_addr_in : word;
-	signal disk_track_in, disk_track_out : TRACK;
+	signal disk_track_in, disk_track_out : track;
 	signal disk_read, disk_write : STD_LOGIC;
 	signal disk_read_complete, disk_write_complete : STD_LOGIC;
 
