@@ -8,6 +8,7 @@ use work.Glob_dcls.all;
 
 entity MemController is
 	port(
+		addr_in_cpu					: IN word;
 		addr_in_mmu 					: IN word;
 		controller_enable_read, controller_enable_write : IN STD_LOGIC;
 		page_lookup_needed 				: IN STD_LOGIC;
@@ -18,6 +19,7 @@ entity MemController is
 		iobuf_read_complete, iobuf_write_complete	: IN STD_LOGIC;
 		disk_read_complete, disk_write_complete		: IN STD_LOGIC;
 		addr_out_cpu 					: OUT word;
+		addr_out_tlb					: OUT word;
 		reset_N						: OUT STD_LOGIC;
 		mmu_enable, mm_page_query 			: OUT STD_LOGIC;
 		tlb_read, tlb_write 				: OUT STD_LOGIC;
@@ -27,7 +29,8 @@ entity MemController is
 		mm_read_cache, mm_write_cache 			: OUT STD_LOGIC;
 		iobuf_read_mm, iobuf_write_mm 			: OUT STD_LOGIC;
 		iobuf_read_disk, iobuf_write_disk 		: OUT STD_LOGIC;
-		disk_read, disk_write 				: OUT STD_LOGIC
+		disk_read, disk_write 				: OUT STD_LOGIC;
+		controller_action_complete			: OUT STD_LOGIC
 	);
 end MemController;
 
@@ -78,6 +81,8 @@ architecture MemController_arch of MemController is
 				-- Reset all signals from states that transition back to this state
 				addr_out_cpu <= (others => '0');
 
+				controller_action_complete <= '1';
+
 				mmu_enable <= '0';
 
 				mm_page_query <= '0';
@@ -118,8 +123,12 @@ architecture MemController_arch of MemController is
 				then
 					next_state <= "00010";
 
+					controller_action_complete <= '0';
+
 				else
 					next_state <= "00011";
+
+					controller_action_complete <= '0';
 
 				end if;
 
@@ -127,6 +136,8 @@ architecture MemController_arch of MemController is
 			elsif(current_state = "00011")
 			then
 				next_state <= "00100";
+
+				addr_out_tlb <= addr_in_cpu;
 		
 				tlb_read <= '1';
 
