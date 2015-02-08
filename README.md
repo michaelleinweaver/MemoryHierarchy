@@ -4,7 +4,7 @@ The specification of the project is as follows:
 
 Component | Description
 --------- | -----------
-CPU | Multi-Cycle, 32 Bit Von Neumann Architecture.
+CPU | Multi-Cycle, 32 Bit Harvard Architecture.
 Memory Controller | Receives signals from CPU controller to read and write, takes appropriate action by sending read/write signals to hierarchy components.
 Memory Management Unit | Takes as input the 32 bit virtual address from the CPU and, using the TLB or Main Memory page table, translates the virtual address to a physical address to be used by the memory controller.
 Translation Lookaside Buffer | Works in conjunction with the Memory Management Unit to translate virtual addresses to physical addresses. 
