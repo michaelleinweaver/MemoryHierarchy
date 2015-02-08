@@ -32,4 +32,5 @@ Magnetic Disk | Utilizes the Advanced Format standard with 4K sectors. Storage c
 - [ ] Integration
   - [X] Single VHDL File Connecting CPU and Memory Hierarchy
   - [X] Von Neumann Architecture to Harvard Architecture Conversion
-  - [ ] Final Testing and Clean-up
+  - [X] Clean-up
+  - [ ] Final Testing
