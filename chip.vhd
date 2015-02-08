@@ -59,12 +59,14 @@ architecture Chip_arch of Chip is
 	signal disk_read_complete, disk_write_complete : STD_LOGIC;
 
 	-- Memory controller
-	signal controller_enable_read, controller_enable_write : STD_LOGIC;
-	signal addr_out_cpu : word;
+	signal controller_enable_read, controller_enable_write, controller_action_complete : STD_LOGIC;
+	signal addr_from_cpu, addr_out_cpu : word;
 
 	-- component declaration
 	for all: CPU use entity work.CPU(CPU_arch)
-	port map(clk=>clk, reset_N=>reset_N);
+	port map(clk=>clk, reset_N=>reset_N, controller_action_complete=>controller_action_complete,
+		 addr_in_cpu=>addr_in_cpu, din_cpu=>dout_cpu, controller_read_enable=>controller_read_enable,
+		 controller_write_enable=>controller_write_enable, addr_from_cpu=>addr_from_cpu);
 
 	for all: L2Cache use entity work.L2Cache(L2Cache_arch)
 	port map(tag_in=>tag_in, index_in=>index_in, din_cpu=>din_cpu, din_mainmem=>din_mainmem,
@@ -98,18 +100,18 @@ architecture Chip_arch of Chip is
 		 dout=>disk_track_out, read_complete=>disk_read_complete, write_complete=>disk_write_complete);
 
 	for all : MemController use entity work.MemController(MemController_arch)
-	port map(addr_in_mmu=>addr_out_ctrl, controller_enable_read=>controller_enable_read, controller_enable_write=>controller_enable_write,
+	port map(addr_in_cpu=>addr_from_cpu, addr_in_mmu=>addr_out_ctrl, controller_enable_read=>controller_enable_read, controller_enable_write=>controller_enable_write,
 		 page_lookup_needed=>mm_page_lookup_needed, mm_page_found=>mm_page_found, clk=>clk, l2_read_complete=>read_complete_l2,
 		 l2_write_complete=>write_complete_l2, mm_read_complete=>mm_read_complete, mm_write_complete=>mm_write_complete,
 		 iobuf_read_complete=>io_read_complete, iobuf_write_complete=>io_write_complete, disk_read_complete=>disk_read_complete,
-		 disk_write_complete=>disk_write_complete, addr_out_cpu=>addr_out_cpu, reset_N=>mem_reset_N, mmu_enable=>mmu_enable,
+		 disk_write_complete=>disk_write_complete, addr_out_cpu=>addr_out_cpu, addr_out_tlb=>addr_out_tlb, reset_N=>mem_reset_N, mmu_enable=>mmu_enable,
 		 mm_page_query=>mm_page_query, tlb_read=>tlb_read, tlb_write=>tlb_write, l2_read_mm=>cache_read_mm,
 		 l2_write_mm=>cache_write_mm, mm_read_io=>mem_read_buffer, mm_write_io=>mem_write_buffer, mm_read_cache=>mem_read_cache,
 	  	 mm_write_cache=>mem_write_cache, iobuf_read_mm=>io_read_mm, iobuf_write_mm=>io_write_mm, iobuf_read_disk=>io_read_disk,
-		 iobuf_write_disk=>io_write_disk, disk_read=>disk_read, disk_write=>disk_write);
+		 iobuf_write_disk=>io_write_disk, disk_read=>disk_read, disk_write=>disk_write, controller_action_complete=>controller_action_complete);
 
 begin
-	C1: CPU port map(clk, reset_N);
+	C1: CPU port map(clk, reset_N, controller_action_complete, addr_out_cpu, dout_cpu, controller_enable_read, controller_enable_write);
 
 	L21: L2Cache port map(tag_in, index_in, din_cpu, din_mainmem, cache_read_mm, cache_read_cpu, 
 			     cache_write_mm, cache_write_cpu, mem_reset_N, dout_cpu, dout_mainmem, 
@@ -129,10 +131,10 @@ begin
 	Disk1: MagDisk port map(disk_addr_in, disk_track_in, mem_reset_N, disk_read, disk_write, disk_track_out, disk_read_complete,
 				disk_write_complete);
 
-	MemController1: MemController port map(addr_out_ctrl, controller_enable_read, controller_enable_write,
+	MemController1: MemController port map(addr_from_cpu, addr_out_ctrl, controller_enable_read, controller_enable_write,
 		 mm_page_lookup_needed, mm_page_found, clk, read_complete_l2, write_complete_l2, mm_read_complete, mm_write_complete,
-		 io_read_complete, io_write_complete, disk_read_complete, disk_write_complete, addr_out_cpu, mem_reset_N, mmu_enable,
+		 io_read_complete, io_write_complete, disk_read_complete, disk_write_complete, addr_out_cpu, addr_out_tlb, mem_reset_N, mmu_enable,
 		 mm_page_query, tlb_read, tlb_write, cache_read_mm, cache_write_mm, mem_read_buffer, mem_write_buffer, mem_read_cache,
-	  	 mem_write_cache, io_read_mm, io_write_mm, io_read_disk, io_write_disk, disk_read, disk_write);
+	  	 mem_write_cache, io_read_mm, io_write_mm, io_read_disk, io_write_disk, disk_read, disk_write, controller_action_complete);
 
 end Chip_arch;
