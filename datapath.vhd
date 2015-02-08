@@ -12,6 +12,7 @@ entity datapath is
   port (
     clk        : in  std_logic;
     reset_N    : in  std_logic;
+    addr_in_ctrl : in word;
     
     PCUpdate   : in  std_logic;         -- write_enable of PC
 
@@ -20,6 +21,9 @@ entity datapath is
     InstMemWrite   : in  std_logic;		-- write_enable for memory
     DataMemRead : in std_logic;
     DataMemWrite : in std_logic;
+    addrin_mem : in word;
+    din_ctrl : in word;
+    DataMemLoc : in std_logic;
 
     IRWrite    : in  std_logic;         -- write_enable for Instruction Register
     MemtoReg   : in  std_logic_vector(1 downto 0);  -- selects ALU or MEMORY to write to register file.
@@ -33,7 +37,9 @@ entity datapath is
 
     opcode_out : out opcode;		-- send opcode to controller
     func_out   : out opcode;		-- send func field to controller
-    zero       : out std_logic);	-- send zero to controller (cond. branch)
+    zero       : out std_logic;
+    addr_out   : out word
+);	-- send zero to controller (cond. branch)
 
 end datapath;
 
@@ -45,6 +51,7 @@ architecture datapath_arch of datapath is
 	signal mem_address, Md_out : word;
 	signal rs, rt, rd : reg_addr;
 	signal jump_addr, sign_extended_immediate, shifted_extended_immediate : word;
+	signal data_mem_in : word;
 
 	-- component specification
 	for all : ALU use entity work.ALU(ALU_arch)
@@ -54,7 +61,10 @@ architecture datapath_arch of datapath is
 	port map(clk=>clk, wr_en=>wr_en, reset_N=>reset_N, rd_addr_1=>rs, rd_addr_2=>rt, wr_addr=>rd, 
 						d_in=>d_in, d_out_1=>RFout1, d_out_2=>RFout2);
 
-	for all : mem use entity work.mem(mem_arch)
+	for all : INST_MEM use entity work.INST_MEM(INST_MEM_ARCH)
+	port map(MemRead=>MemRead, MemWrite=>MemWrite, d_in=>RegBout, address=>mem_address, d_out=>Md_out);
+
+	for all : DATA_MEM use entity work.DATA_MEM(DATA_MEM_ARCH)
 	port map(MemRead=>MemRead, MemWrite=>MemWrite, d_in=>RegBout, address=>mem_address, d_out=>Md_out);
 
 	-- Don't port map here because each register gets a different set of inputs
@@ -63,9 +73,11 @@ architecture datapath_arch of datapath is
 begin
 	ALU1 : ALU port map(ALUControl, SrcA, SrcB, ALUOut, Zero);
 
-	RF1	 : RegFile port map(clk, RegWrite, reset_N, rs, rt, rd, RFin, RFout1, RFout2);
+	RF1 : RegFile port map(clk, RegWrite, reset_N, rs, rt, rd, RFin, RFout1, RFout2);
 	
-	M1: mem port map(MemRead, MemWrite, regBout, mem_address, Md_out);
+	IM1: INST_MEM port map(InstMemRead, InstMemWrite, regBout, mem_address, Md_out);
+
+	DM1 : DATA_MEM port map(DataMemRead, DataMemWrite, data_mem_in, mem_address, Md_out);
 
 	ALUout_reg: reg port map(ALUout, clk, clk, reset_N, ALUout_val);
 
@@ -73,41 +85,47 @@ begin
 
 	PC: reg port map(PCValue, clk, PCUpdate, reset_N, PCout);
 
-	MDR: reg port map(Md_out, clk, MemRead, reset_N, MDRout);
+	MDR: reg port map(Md_out, clk, DataMemRead, reset_N, MDRout);
 
 	RegA: reg port map(RFout1, clk, clk, reset_N, RegAout);
 
 	RegB: reg port map(RFout2, clk, clk, reset_N, RegBout);
 
+	with DataMemLoc select
+		data_mem_in <= din_ctrl when '1',
+			        regBout when others;
+
 	with IorD select 
 		mem_address <= ALUout_val when '0',
-									 PCout when others;
+			       PCout when others;
 
 	with MemtoReg select
 		RFin <= ALUout_val when "00",
-						MDRout when "01",
-						ALUout_val when others;
+			MDRout when "01",
+			ALUout_val when others;
 		
 	with PCSource select
 		PCValue <= ALUout_im when "00",
-							 ALUout_val when "01",
-							 jump_addr when "10",
-							 ALUout_im when others;
+			ALUout_val when "01",
+			jump_addr when "10",
+			ALUout_im when others;
 
 	with ALUSrcA select
 		SrcA <=	PCout when "00",
-						RegAout when "01",
-						RegBout when "10",
-						PCout when others;
+			RegAout when "01",
+			RegBout when "10",
+			PCout when others;
 
 	with ALUSrcB select
 		SrcB <= RegBout when "00",
-						sign_extended_immediate when "01",
-						shifted_extended_immediate when "10",
-						Four_word when "11",
-						RegBout when others;
+			sign_extended_immediate when "01",
+			shifted_extended_immediate when "10",
+			Four_word when "11",
+			RegBout when others;
 						
 	ALUout_im <= ALUOut;
+
+	addr_out <= ALUout_val;
 
 	sign_extended_immediate <= (31 downto 16 => IRout(15)) & IRout(15 downto 0);
 
