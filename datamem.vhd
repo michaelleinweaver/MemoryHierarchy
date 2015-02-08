@@ -10,7 +10,7 @@ ENTITY DATA_MEM IS
 	 		MemWrite : IN std_logic;
 			d_in		 : IN   word;		 
 	 		address	 : IN   word;
-	 		d_out		 : OUT  word 
+	 		d_out		 : OUT  word
 	 );
 END DATA_MEM;
 
