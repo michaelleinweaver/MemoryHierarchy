@@ -7,6 +7,7 @@ use IEEE.numeric_std.all;
 use work.Glob_dcls.all;
 
 entity MemController is
+
 	port(
 		addr_in_cpu					: IN word;
 		addr_in_mmu 					: IN word;
@@ -32,6 +33,7 @@ entity MemController is
 		disk_read, disk_write 				: OUT STD_LOGIC;
 		controller_action_complete			: OUT STD_LOGIC
 	);
+
 end MemController;
 
 architecture MemController_arch of MemController is
