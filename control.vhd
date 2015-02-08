@@ -8,34 +8,35 @@ USE IEEE.numeric_std.all;
 USE work.Glob_dcls.all;
 
 entity control is 
+
    port(
-      	clk   	    : IN STD_LOGIC; 
-      	reset_N	    : IN STD_LOGIC; 
-      	opcode_in   : IN opcode;     -- declare type for the 6 most significant bits of IR
-      	funct_in    : IN opcode;     -- declare type for the 6 least significant bits of IR 
-     	zero        : IN STD_LOGIC;
-	controller_action_complete : IN STD_LOGIC;
-	addr_in     : IN word;
-        
-     	PCUpdate    : OUT STD_LOGIC; -- this signal controls whether PC is updated or not
-     	IorD        : OUT STD_LOGIC;
-     	InstMemRead : OUT STD_LOGIC;
-     	InstMemWrite : OUT STD_LOGIC;
-	DataMemRead : OUT STD_LOGIC;
-	DataMemWrite : OUT STD_LOGIC;
-     	IRWrite     : OUT STD_LOGIC;
-     	MemtoReg    : OUT STD_LOGIC_VECTOR (1 downto 0); -- the extra bit is for JAL
-     	RegDst      : OUT STD_LOGIC_VECTOR (1 downto 0); -- the extra bit is for JAL
-     	RegWrite    : OUT STD_LOGIC;
-     	ALUSrcA     : OUT STD_LOGIC_VECTOR (1 downto 0);
-     	ALUSrcB     : OUT STD_LOGIC_VECTOR (1 downto 0);
-     	ALUcontrol  : OUT ALU_opcode;
-     	PCSource    : OUT STD_LOGIC_VECTOR (1 downto 0);
-	controller_read_enable : OUT STD_LOGIC;
-	controller_write_enable : OUT STD_LOGIC;
-	addr_out : OUT word;
-	DataMemLoc : out std_logic
-	);
+      	clk   	    			: IN STD_LOGIC; 
+      	reset_N	    			: IN STD_LOGIC; 
+      	opcode_in   			: IN opcode;     -- declare type for the 6 most significant bits of IR
+      	funct_in    			: IN opcode;     -- declare type for the 6 least significant bits of IR 
+     	zero        			: IN STD_LOGIC;
+	controller_action_complete 	: IN STD_LOGIC;
+	addr_in     			: IN word;
+     	PCUpdate    			: OUT STD_LOGIC; -- this signal controls whether PC is updated or not
+     	IorD        			: OUT STD_LOGIC;
+     	InstMemRead 			: OUT STD_LOGIC;
+     	InstMemWrite 			: OUT STD_LOGIC;
+	DataMemRead 			: OUT STD_LOGIC;
+	DataMemWrite 			: OUT STD_LOGIC;
+     	IRWrite     			: OUT STD_LOGIC;
+     	MemtoReg    			: OUT STD_LOGIC_VECTOR (1 downto 0); -- the extra bit is for JAL
+     	RegDst      			: OUT STD_LOGIC_VECTOR (1 downto 0); -- the extra bit is for JAL
+     	RegWrite    			: OUT STD_LOGIC;
+     	ALUSrcA     			: OUT STD_LOGIC_VECTOR (1 downto 0);
+     	ALUSrcB     			: OUT STD_LOGIC_VECTOR (1 downto 0);
+     	ALUcontrol  			: OUT ALU_opcode;
+     	PCSource    			: OUT STD_LOGIC_VECTOR (1 downto 0);
+	controller_read_enable 		: OUT STD_LOGIC;
+	controller_write_enable 	: OUT STD_LOGIC;
+	addr_out 			: OUT word;
+	DataMemLoc 			: out STD_LOGIC
+   );
+
 end control;
 
 architecture control_arch of control is
@@ -163,7 +164,7 @@ begin
 		elsif(current_state = "1000")
 		then
 			-- Pull the data from the location in the hierarchy
-			if(to_integer(unsigned(addr_in(31 downto 16))) > 0)
+			if(to_integer(UNSIGNED(addr_in(31 downto 16))) > 0)
 			then
 				controller_read_enable <= '1';
 
@@ -190,7 +191,7 @@ begin
 		elsif(current_state = "1001")
 		then
 			-- Store in a location in the hierarchy
-			if(to_integer(unsigned(addr_in(31 downto 16))) > 0)
+			if(to_integer(UNSIGNED(addr_in(31 downto 16))) > 0)
 			then
 				controller_write_enable <= '1';
 
