@@ -146,6 +146,7 @@ package Glob_dcls is
 			);
 		END component;
 
+		-- 64 KB data 
 		component DATA_MEM IS
    		port(
 				MemRead	 : IN std_logic;
@@ -168,6 +169,10 @@ package Glob_dcls is
     		InstMemWrite   : in  std_logic;		-- write_enable for memory
 		DataMemRead : in std_logic;
 		DataMemWrite : in std_logic;
+		addrin_mem : in word;
+		din_ctrl : in word;
+		DataMemLoc : in std_logic;
+
     		IRWrite    : in  std_logic;         -- write_enable for Instruction Register
     		MemtoReg   : in  std_logic_vector(1 downto 0);  -- selects ALU or MEMORY to write to register file.
     		RegDst     : in  std_logic_vector(1 downto 0);  -- selects rt or rd as destination of operation
@@ -180,7 +185,9 @@ package Glob_dcls is
 
     		opcode_out : out opcode;		-- send opcode to controller
     		func_out   : out opcode;		-- send func field to controller
-   		 	zero       : out std_logic);	-- send zero to controller (cond. branch)
+   		 zero       : out std_logic;
+		addr_out   : out word
+		);	-- send zero to controller (cond. branch)
 		end component;
 
 		component control is 
@@ -190,7 +197,8 @@ package Glob_dcls is
       		opcode_in   : IN opcode;     -- declare type for the 6 most significant bits of IR
       		funct_in    : IN opcode;     -- declare type for the 6 least significant bits of IR 
      		zero        : IN STD_LOGIC;
-		addrin_mem  : IN word;
+		controller_action_complete : IN STD_LOGIC;
+		addr_in     : IN word;
         
      		PCUpdate    : OUT STD_LOGIC; -- this signal controls whether PC is updated or not
      		IorD        : OUT STD_LOGIC;
@@ -205,15 +213,25 @@ package Glob_dcls is
      		ALUSrcA     : OUT STD_LOGIC_VECTOR (1 downto 0);
      		ALUSrcB     : OUT STD_LOGIC_VECTOR (1 downto 0);
      		ALUcontrol  : OUT ALU_opcode;
-     		PCSource    : OUT STD_LOGIC_VECTOR (1 downto 0)
-			);
+     		PCSource    : OUT STD_LOGIC_VECTOR (1 downto 0);
+		controller_read_enable : OUT STD_LOGIC;
+		controller_write_enable : OUT STD_LOGIC;
+		addr_out : OUT word;
+		DataMemLoc : OUT STD_LOGIC
+		);
 		end component;
 
 		component CPU is
   		port (
     		clk     : in std_logic;
-    		reset_N : in std_logic
-				);
+    		reset_N : in std_logic;
+		controller_action_complete : in std_logic;	
+		addr_in_cpu : in word;
+		din_cpu : in word;
+		controller_read_enable : out std_logic;
+		controller_write_enable : out std_logic;
+		addr_from_cpu : out word
+		);
 		end component;
 
 		component L2Cache is
@@ -288,6 +306,7 @@ package Glob_dcls is
 		component MemController is
 			port(
 				addr_in_mmu 																		: IN word;
+				addr_in_cpu	: IN word;
 				controller_enable_read, controller_enable_write : IN STD_LOGIC;
 				page_lookup_needed 															: IN STD_LOGIC;
 				mm_page_found																		: IN STD_LOGIC;
@@ -297,6 +316,7 @@ package Glob_dcls is
 				iobuf_read_complete, iobuf_write_complete				: IN STD_LOGIC;
 				disk_read_complete, disk_write_complete					: IN STD_LOGIC;
 				addr_out_cpu 																		: OUT word;
+				addr_out_tlb : OUT word;
 				reset_N																					: OUT STD_LOGIC;
 				mmu_enable, mm_page_query 											: OUT STD_LOGIC;
 				tlb_read, tlb_write 														: OUT STD_LOGIC;
@@ -306,7 +326,8 @@ package Glob_dcls is
 				mm_read_cache, mm_write_cache 									: OUT STD_LOGIC;
 				iobuf_read_mm, iobuf_write_mm 									: OUT STD_LOGIC;
 				iobuf_read_disk, iobuf_write_disk 							: OUT STD_LOGIC;
-				disk_read, disk_write 													: OUT STD_LOGIC
+				disk_read, disk_write 													: OUT STD_LOGIC;
+				controller_action_complete : OUT STD_LOGIC		
 			);
 		end component;
 
