@@ -1,12 +1,15 @@
+-- Student name: Michael Leinweaver
+-- Student ID number: 67836368
+
 LIBRARY IEEE; 
 USE IEEE.std_logic_1164.all;
 USE IEEE.std_logic_unsigned.all;
 USE IEEE.numeric_std.all;
 USE work.Glob_dcls.all;
 
-ENTITY DATA_MEM IS
+entity DATA_MEM is
 
-   	PORT (
+   	port (
 		MemRead		: IN STD_LOGIC;
 	 	MemWrite	: IN STD_LOGIC;
 		d_in		: IN word;		 
@@ -14,10 +17,10 @@ ENTITY DATA_MEM IS
 	 	d_out		: OUT word 
 	);
 
-END DATA_MEM;
+end DATA_MEM;
 
 
-ARCHITECTURE DATA_MEM_ARCH OF DATA_MEM IS
+architecture DATA_MEM_ARCH of DATA_MEM is
 
 	-- component declaration
 	-- given in Glob_dcls.vhd
@@ -27,7 +30,7 @@ ARCHITECTURE DATA_MEM_ARCH OF DATA_MEM IS
 
 	signal addr: UNSIGNED(29 downto 0);
 	
-	signal MEM : RAM:=("00100000000000010000000000000001",	--   addi r1, r0, 1   -- r1 = 0; 
+	signal mem : RAM:=("00100000000000010000000000000001",	--   addi r1, r0, 1   -- r1 = 0; 
 	                   "00000000001000010001000000100000",	--   add  r2, r1, r1  -- r2 = r1*2
 	                   "10001100000000110000000001111100",	--   lw   r3, 124(r0) -- r3 = 111....11
 	                   "00000000000000000010000000100100",	--   and r4, r0, r0   -- shift right r3 by r2 times (2 times r1)
@@ -61,22 +64,24 @@ ARCHITECTURE DATA_MEM_ARCH OF DATA_MEM IS
 			   "00000000000000000000000000000000"
 	);
 	
-BEGIN
-
-addr <= UNSIGNED(address(31 downto 2));
-
-memory: process(MemRead, MemWrite)
-	
 begin
-	if MemWrite'event and MemWrite = '1' then
-     		MEM(TO_INTEGER(addr)) <= d_in after WR_LATENCY;
-	elsif MemRead'event and MemRead = '1' then
-     		d_out <= MEM(TO_INTEGER(addr)) after RD_LATENCY;
-	else
-     		null;
-	end if;
-end process memory;
 
-END DATA_MEM_ARCH;
+	addr <= UNSIGNED(address(31 downto 2));
+
+	process(MemRead, MemWrite)
+	begin
+		if MemWrite'event and MemWrite = '1' then
+     			mem(TO_INTEGER(addr)) <= d_in after wr_latency;
+
+		elsif MemRead'event and MemRead = '1' then
+     			d_out <= mem(TO_INTEGER(addr)) after rd_latency;
+
+		else
+     			null;
+		end if;
+
+	end process;
+
+end DATA_MEM_ARCH;
 
 
