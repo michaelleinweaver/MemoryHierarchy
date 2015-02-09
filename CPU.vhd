@@ -8,16 +8,16 @@ USE work.Glob_dcls.all;
 
 entity CPU is
   
-  port (
-    clk     : in std_logic;
-    reset_N : in std_logic;
-    controller_action_complete : in std_logic;
-    addr_in_cpu : IN word;
-    din_cpu : IN word;
-    controller_read_enable : out std_logic;
-    controller_write_enable : out std_logic;
-    addr_from_cpu : out word
-    );
+  	port (
+   		 clk     			: in STD_LOGIC;
+    		reset_N 			: in STD_LOGIC;
+    		controller_action_complete 	: in STD_LOGIC;
+    		addr_in_cpu 		: IN word;
+    		din_cpu 			: IN word;
+    		controller_read_enable 	: out STD_LOGIC;
+    		controller_write_enable 	: out STD_LOGIC;
+    		addr_from_cpu 		: out word
+    	);
 
 end CPU;
 

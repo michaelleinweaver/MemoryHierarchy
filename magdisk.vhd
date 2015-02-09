@@ -7,35 +7,33 @@ use IEEE.numeric_std.all;
 use work.Glob_dcls.all;
 
 entity MagDisk is
+
 	port(
-		addr_in : IN word;
-		din : IN TRACK;
-		reset_N : IN STD_LOGIC;
-		disk_read, disk_write : IN STD_LOGIC;
-		dout : OUT TRACK;
-		read_complete, write_complete : OUT STD_LOGIC
+		addr_in 			: IN word;
+		din 				: IN TRACK;
+		reset_N 			: IN STD_LOGIC;
+		disk_read, disk_write 		: IN STD_LOGIC;
+		dout 				: OUT TRACK;
+		read_complete, write_complete 	: OUT STD_LOGIC
 	);
+
 end MagDisk;
 
 architecture MagDisk_arch of MagDisk is
 
-	signal addr_sector: natural;
+	signal addr_sector, addr_track: NATURAL;
 
-	signal addr_track : natural;
+	signal disk_latency : TIME;
 
-	signal read_latency, write_latency : time;
-
-	signal CONTENTS : disk_storage;
+	signal contents : disk_storage;
 
 	begin
 
-		addr_sector <= to_integer(unsigned(addr_in(29 downto 12)));
+		addr_sector <= to_integer(UNSIGNED(addr_in(29 downto 12)));
 
-		addr_track <= to_integer(unsigned(addr_in(11 downto 9)));
+		addr_track <= to_integer(UNSIGNED(addr_in(11 downto 9)));
 
-		read_latency <= SEEK_LATENCY + ROTATE_LATENCY + SATA_LATENCY;
-
-		write_latency <= SEEK_LATENCY + ROTATE_LATENCY + SATA_LATENCY;
+		disk_latency <= seek_latency + rotate_latency + sata_latency;
 
 		process(reset_N, disk_read, disk_write)
 		begin
@@ -53,13 +51,13 @@ architecture MagDisk_arch of MagDisk is
 			then
 				CONTENTS(addr_sector)(addr_track) <= din;
 
-				write_complete <= '1' after write_latency;
+				write_complete <= '1' after disk_latency;
 
 			elsif(disk_read'event and disk_read = '1')
 			then
 				dout <= CONTENTS(addr_sector)(addr_track);
 
-				read_complete <= '1' after read_latency;
+				read_complete <= '1' after disk_latency;
 
 			else
 				null;

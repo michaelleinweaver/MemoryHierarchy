@@ -8,12 +8,14 @@ USE IEEE.numeric_std.all;
 USE work.Glob_dcls.all;
 
 entity ALU is 
+
   port( 
-		op_code  : in ALU_opcode;
-    in0, in1 : in word;	
-		out1     : out word;
-	  Zero     : out std_logic
+		op_code  : IN ALU_opcode;
+    		in0, in1 : IN word;	
+		out1     : OUT word;
+	  	Zero     : OUT std_logic
   );
+
 end ALU;
 
 architecture ALU_arch of ALU is

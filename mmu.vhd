@@ -7,12 +7,14 @@ use IEEE.numeric_std.all;
 use work.Glob_dcls.all;
 
 entity MMU IS
+
 	port(
-		addr_in_cpu, addr_in_tlb : IN word;
-		enable, tlb_found : in STD_LOGIC;
-		addr_out_tlb, addr_out_ctrl : OUT word;
-		page_lookup_needed : out std_logic
+		addr_in_cpu, addr_in_tlb 	: IN word;
+		enable, tlb_found 		: in STD_LOGIC;
+		addr_out_tlb, addr_out_ctrl 	: OUT word;
+		page_lookup_needed 		: out STD_LOGIC
 	);
+
 end MMU;
 
 architecture MMU_arch of MMU is

@@ -8,13 +8,15 @@ USE IEEE.numeric_std.all;
 USE work.Glob_dcls.all;
 
 entity reg is
+
 	port(
-		d_in    : in word;
-		clk		  : in STD_LOGIC;
-		wr_en   : in STD_LOGIC;
-		reset_N : in STD_LOGIC;
-		d_out   : out word
+		d_in    : IN word;
+		clk	: IN STD_LOGIC;
+		wr_en   : IN STD_LOGIC;
+		reset_N : IN STD_LOGIC;
+		d_out   : OUT word
 	);
+
 end reg;
 
 architecture reg_arch of reg is

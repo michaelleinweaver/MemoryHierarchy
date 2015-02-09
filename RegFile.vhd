@@ -7,12 +7,14 @@ use IEEE.numeric_std.all;
 use work.Glob_dcls.all;
 
 entity RegFile is 
+
   port(
-        clk, wr_en, reset_N	          : in STD_LOGIC;
-        rd_addr_1, rd_addr_2, wr_addr : in REG_addr;
-        d_in                          : in word; 
-        d_out_1, d_out_2              : out word
+        clk, wr_en, reset_N	      : IN STD_LOGIC;
+        rd_addr_1, rd_addr_2, wr_addr : IN REG_addr;
+        d_in                          : IN word; 
+        d_out_1, d_out_2              : OUT word
   );
+
 end RegFile;
 
 architecture RF_arch of RegFile is
@@ -38,9 +40,9 @@ architecture RF_arch of RegFile is
 
 		with rd_addr_1 select
 			d_out_1 <= registers(0) when "UUUUU",
-								 registers(to_integer(unsigned(rd_addr_1))) when others;
+		 	registers(to_integer(unsigned(rd_addr_1))) when others;
 
 		with rd_addr_2 select
 			d_out_2 <= registers(0) when "UUUUU",
-								 registers(to_integer(unsigned(rd_addr_2))) when others;
+			registers(to_integer(unsigned(rd_addr_2))) when others;
 end RF_arch;
