@@ -1,12 +1,15 @@
+-- Student name: Michael Leinweaver
+-- Student ID number: 67836368
+
 LIBRARY IEEE; 
 USE IEEE.std_logic_1164.all;
 USE IEEE.std_logic_unsigned.all;
 USE IEEE.numeric_std.all;
 USE work.Glob_dcls.all;
 
-ENTITY INST_MEM IS
+entity INST_MEM is
 
-   	PORT (
+   	port (
 		MemRead		: IN STD_LOGIC;
 	 	MemWrite	: IN STD_LOGIC;
 		d_in		: IN word;		 
@@ -14,14 +17,14 @@ ENTITY INST_MEM IS
 	 	d_out		: OUT word 
 	);
 
-END INST_MEM;
+end INST_MEM;
 
 
-ARCHITECTURE INST_MEM_ARCH OF INST_MEM IS
+architecture INST_MEM_ARCH of DATA_MEM is
 
 	-- component declaration
 	-- given in Glob_dcls.vhd
-
+	
 	-- component specification
 	-- signal declaration
 
@@ -61,22 +64,24 @@ ARCHITECTURE INST_MEM_ARCH OF INST_MEM IS
 			   "00000000000000000000000000000000"
 	);
 	
-BEGIN
-
-addr <= UNSIGNED(address(31 downto 2));
-
-memory: process(MemRead, MemWrite)
-	
 begin
-	if MemWrite'event and MemWrite = '1' then
-     		MEM(TO_INTEGER(addr)) <= d_in after WR_LATENCY;
-	elsif MemRead'event and MemRead = '1' then
-     		d_out <= MEM(TO_INTEGER(addr)) after RD_LATENCY;
-	else
-     		null;
-	end if;
-end process memory;
 
-END INST_MEM_ARCH;
+	addr <= UNSIGNED(address(31 downto 2));
+
+	process(MemRead, MemWrite)
+	begin
+		if MemWrite'event and MemWrite = '1' then
+     			MEM(TO_INTEGER(addr)) <= d_in after wr_latency;
+
+		elsif MemRead'event and MemRead = '1' then
+     			d_out <= MEM(TO_INTEGER(addr)) after rd_latency;
+
+		else
+     			null;
+		end if;
+
+	end process;
+
+end INST_MEM_ARCH;
 
 

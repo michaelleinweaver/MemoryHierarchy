@@ -45,40 +45,40 @@ architecture control_arch of control is
 	signal ALUimmediate_control, ALUrtype_control : ALU_opcode;
 	signal ALUSrcBWhenShift : STD_LOGIC_VECTOR(1 downto 0);
 	
-begin
-	-- Use these select statements to make the code for selecting the two sources
-	-- and operation type for the ALU more compact
+	begin
+		-- Use these select statements to make the code for selecting the two sources
+		-- and operation type for the ALU more compact
 
-	-- ALU source selection logic
-	with funct_in select 
-		ALUSrcBWhenShift <= "10" when "000000",
+		-- ALU source selection logic
+		with funct_in select 
+			ALUSrcBWhenShift <= "10" when "000000",
 				"10" when "000010",
 				"01" when others;
 
-	with current_state select
-		ALUSrcA <= "00" when "0000",
-			"00" when "0001",
-			"01" when "0010",
-			"01" when "0100",
-			"01" when "0101",
-			"01" when "0111",
-			ALUSrcBWhenShift when others;
+		with current_state select
+			ALUSrcA <= "00" when "0000",
+				"00" when "0001",
+				"01" when "0010",
+				"01" when "0100",
+				"01" when "0101",
+				"01" when "0111",
+				ALUSrcBWhenShift when others;
 
-	with current_state select
-		ALUSrcB <= "11" when "0000",
-			"10" when "0001",
-			 "01" when "0010",
-			 "01" when "0111",
-			 "00" when others;
+		with current_state select
+			ALUSrcB <= "11" when "0000",
+				"10" when "0001",
+			 	"01" when "0010",
+			 	"01" when "0111",
+			 	"00" when others;
 
-	-- ALU control logic
-	with opcode_in select
-		ALUimmediate_control <= "000" when "001000",
-					"100" when "001100",
-					"101" when others;
+		-- ALU control logic
+		with opcode_in select
+			ALUimmediate_control <= "000" when "001000",
+				"100" when "001100",
+				"101" when others;
 
-	with funct_in select
-		ALUrtype_control <= "000" when "100000",
+		with funct_in select
+			ALUrtype_control <= "000" when "100000",
 				"001" when "100010",
 				"100" when "100100",
 				"101" when "100101",
@@ -86,17 +86,17 @@ begin
 				"011" when "000010",
 				ALUImmediate_control when others;
 
-	with current_state select
-		ALUControl <= "000" when "0000",
+		with current_state select
+			ALUControl <= "000" when "0000",
 				"000" when "0001",
 				"000" when "0010",
 				"001" when "0100",
 				"001" when "0101",
 				ALUrtype_control when others;
 									
-	-- next state calculation
-	with current_state select
-		next_state <= "0001" when "0000",
+		-- next state calculation
+		with current_state select
+			next_state <= "0001" when "0000",
 				next_state_decode when "0001",
 				next_state_mem when "0010",
 				"1010" when "0011",
@@ -104,8 +104,8 @@ begin
 				"1100" when "1000",
 				"0000" when others;	
 									
-	with opcode_in select
-		next_state_decode <= "0010" when "100011",
+		with opcode_in select
+			next_state_decode <= "0010" when "100011",
 				 "0010" when "101011",
 				 "0011" when "000000",
 				 "0100" when "000101",
@@ -113,186 +113,185 @@ begin
 				 "0110" when "000010",
 				 "0111" when others;		
 
-	with opcode_in select
-		next_state_mem <= "1000" when "100011",
+		with opcode_in select
+			next_state_mem <= "1000" when "100011",
 				"1001" when others;				
 
-	-- signal-generating process
-	process
-	begin	
-		-- If we're in fetch
-	  	if(current_state = "0000")
-		then
-		  	RegWrite <= '0';
-
-		  	MemToReg <= "00";
-
-			IorD <= '1';
-
-			-- Introduce a small read delay so the PC can stabilize after short
-			-- commands like jump have executed
-			InstMemRead <= '1' after 1 ns;
-
-			IRWrite <= '1';
-
-			PCSource <= "00";
-
-			PCUpdate <= '1';
-
-		-- If we're in decode
-		elsif(current_state = "0001")
-		then
-			IRWrite <= '0';
-
-			IorD <= '0';
-
-			InstMemRead <= '0';
-
-			PCUpdate <= '0';
-
-		-- If we're performing an R-Type, non-immediate
-		elsif(current_state = "0011")
-		then
-			RegDst <= "01";
-
-		-- If we're performing an R-Type immediate
-		elsif(current_state = "0111")
-		then
-			RegDst <= "00";
-
-		-- If we're performing a load specifically
-		elsif(current_state = "1000")
-		then
-			-- Pull the data from the location in the hierarchy
-			if(to_integer(UNSIGNED(addr_in(31 downto 16))) > 0)
+		-- signal-generating process
+		process
+		begin	
+			-- If we're in fetch
+	  		if(current_state = "0000")
 			then
-				controller_read_enable <= '1';
+		  		RegWrite <= '0';
 
-				addr_out <= addr_in; 
+		  		MemToReg <= "00";
 
-				wait until controller_action_complete'event and controller_action_complete = '1';
-				
-				controller_read_enable <= '0';
+				IorD <= '1';
 
-				DataMemLoc <= '1';
+				-- Introduce a small read delay so the PC can stabilize after short
+				-- commands like jump have executed
+				InstMemRead <= '1' after 1 ns;
 
-			else
+				IRWrite <= '1';
 
-				DataMemLoc <= '0';
-
-			end if;
-
-			-- Let the address stabilize
-			DataMemRead <= '1' after 1 ns;
+				PCSource <= "00";
 	
-			RegDst <= "00";
+				PCUpdate <= '1';
 
-		-- If we're performing a store specifically
-		elsif(current_state = "1001")
-		then
-			-- Store in a location in the hierarchy
-			if(to_integer(UNSIGNED(addr_in(31 downto 16))) > 0)
+			-- If we're in decode
+			elsif(current_state = "0001")
 			then
-				controller_write_enable <= '1';
+				IRWrite <= '0';
 
-				addr_out <= addr_in;
+				IorD <= '0';
 
-				wait until controller_action_complete'event and controller_action_complete = '1';
+				InstMemRead <= '0';
 
-				controller_write_enable <= '0';
+				PCUpdate <= '0';
 
-			else
-				IorD <= '0' after 2 ns, '1' after 6 ns;
+			-- If we're performing an R-Type, non-immediate
+			elsif(current_state = "0011")
+			then
+				RegDst <= "01";
+
+			-- If we're performing an R-Type immediate
+			elsif(current_state = "0111")
+			then
+				RegDst <= "00";
+
+			-- If we're performing a load specifically
+			elsif(current_state = "1000")
+			then
+				-- Pull the data from the location in the hierarchy
+				if(to_integer(UNSIGNED(addr_in(31 downto 16))) > 0)
+				then
+					controller_read_enable <= '1';
+
+					addr_out <= addr_in; 
+
+					wait until controller_action_complete'event and controller_action_complete = '1';
+				
+					controller_read_enable <= '0';
+
+					DataMemLoc <= '1';
+
+				else
+					DataMemLoc <= '0';
+
+				end if;
+
+				-- Let the address stabilize
+				DataMemRead <= '1' after 1 ns;
+	
+				RegDst <= "00";
+
+			-- If we're performing a store specifically
+			elsif(current_state = "1001")
+			then
+				-- Store in a location in the hierarchy
+				if(to_integer(UNSIGNED(addr_in(31 downto 16))) > 0)
+				then
+					controller_write_enable <= '1';
+
+					addr_out <= addr_in;
+
+					wait until controller_action_complete'event and controller_action_complete = '1';
+
+					controller_write_enable <= '0';
+
+				else
+					IorD <= '0' after 2 ns, '1' after 6 ns;
 		  
-		  		DataMemWrite <= '1' after 4 ns, '0' after 6 ns;
+		  			DataMemWrite <= '1' after 4 ns, '0' after 6 ns;
 		
-			end if;
+				end if;
 
-		-- If we're performing a BNE
-		elsif(current_state = "0100")
-		then
-			-- Wait for zero to stabilize
-			wait for 2 ns;
-
-			-- If these are not equal
-			if(zero = '0')
+			-- If we're performing a BNE
+			elsif(current_state = "0100")
 			then
-				PCSource <= "01";
-				PCUpdate <= '1';
+				-- Wait for zero to stabilize
+				wait for 2 ns;
+
+				-- If these are not equal
+				if(zero = '0')
+				then
+					PCSource <= "01";
+					PCUpdate <= '1';
 			
-			else
-				IorD <= '1';
+				else
+					IorD <= '1';
 
-			end if;
+				end if;
 
-		-- If we're performing a BEQ
-		elsif(current_state = "0101")
-		then
-			-- Wait for zero to stabilize
-			wait for 2 ns;
-
-			-- If these are equal
-			if(zero = '1')
+			-- If we're performing a BEQ
+			elsif(current_state = "0101")
 			then
-				PCSource <= "01";
+				-- Wait for zero to stabilize
+				wait for 2 ns;
+
+				-- If these are equal
+				if(zero = '1')
+				then
+					PCSource <= "01";
+					PCUpdate <= '1';
+
+				else
+					IorD <= '1';
+
+				end if;
+
+			-- If we're performing a jump
+			elsif(current_state = "0110")
+			then
+				PCSource <= "10";
+
 				PCUpdate <= '1';
 
-			else
+			-- If we're in the second stage of a lw
+			elsif(current_state = "1100")
+			then
+				MemToReg <= "01";
+
+				PCUpdate <= '0';
+
+				DataMemRead <= '0';
+
 				IorD <= '1';
+
+				RegWrite <= '1';
+
+			-- If we've finished execution and just need to return to fetch
+			elsif(current_state = "1010" OR current_state = "1011")
+			then 
+				-- Prevent the PC from updating in case a garbage value is momentarily selected
+				-- as the input to the PC
+				PCUpdate <= '0';
+
+				-- Prevent the memory from reading until we've returned from fetch
+				DataMemRead <= '0';
+
+				-- Ensure the memory has the correct address when fetching
+				IorD <= '1';
+
+				RegWrite <= '1';
+
+			else
+				null;
 
 			end if;
 
-		-- If we're performing a jump
-		elsif(current_state = "0110")
-		then
-			PCSource <= "10";
+			-- Wait for a change in the current state
+			wait until current_state'event;
+		end process;
 
-			PCUpdate <= '1';
+		-- state update process
+		process(clk)
+		begin
+	  	if(clk'event AND clk = '1')
+			then
+				current_state <= next_state;
 
-		-- If we're in the second stage of a lw
-		elsif(current_state = "1100")
-		then
-			MemToReg <= "01";
-
-			PCUpdate <= '0';
-
-			DataMemRead <= '0';
-
-			IorD <= '1';
-
-			RegWrite <= '1';
-
-		-- If we've finished execution and just need to return to fetch
-		elsif(current_state = "1010" OR current_state = "1011")
-		then 
-			-- Prevent the PC from updating in case a garbage value is momentarily selected
-			-- as the input to the PC
-			PCUpdate <= '0';
-
-			-- Prevent the memory from reading until we've returned from fetch
-			DataMemRead <= '0';
-
-			-- Ensure the memory has the correct address when fetching
-			IorD <= '1';
-
-			RegWrite <= '1';
-
-		else
-			null;
-
-		end if;
-
-		-- Wait for a change in the current state
-		wait until current_state'event;
-	end process;
-
-	-- state update process
-	process(clk)
-	begin
-	  if(clk'event AND clk = '1')
-		then
-			current_state <= next_state;
-
-		end if;
-	end process;
+			end if;
+		end process;
 end control_arch;

@@ -51,12 +51,12 @@ architecture CPU_arch of CPU is
 
 	
 
-begin
-	D1: datapath port map(clk, reset_N, PCUpdate, IorD, InstMemRead, InstMemWrite, DataMemRead, DataMemWrite, addrin_mem, din_cpu, DataMemLoc, IRWrite, MemtoReg, RegDst,
+	begin
+		D1: datapath port map(clk, reset_N, PCUpdate, IorD, InstMemRead, InstMemWrite, DataMemRead, DataMemWrite, addrin_mem, din_cpu, DataMemLoc, IRWrite, MemtoReg, RegDst,
 												RegWrite, ALUSrcA, ALUSrcB, ALUControl, PCSource, dp_opcode, dp_funct,
 												zero, addrin_dp);
 
-	C1: control port map(clk, reset_N, dp_opcode, dp_funct, zero, controller_action_complete, addrin_dp, PCUpdate, IorD, InstMemRead, InstMemWrite, 
+		C1: control port map(clk, reset_N, dp_opcode, dp_funct, zero, controller_action_complete, addrin_dp, PCUpdate, IorD, InstMemRead, InstMemWrite, 
 												DataMemRead, DataMemWrite, IRWrite,
 												MemtoReg, RegDst, RegWrite, ALUSrcA, ALUSrcB, ALUControl, PCSource, 
 												controller_read_enable, controller_write_enable);

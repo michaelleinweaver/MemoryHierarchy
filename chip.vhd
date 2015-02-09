@@ -110,31 +110,31 @@ architecture Chip_arch of Chip is
 	  	 mm_write_cache=>mem_write_cache, iobuf_read_mm=>io_read_mm, iobuf_write_mm=>io_write_mm, iobuf_read_disk=>io_read_disk,
 		 iobuf_write_disk=>io_write_disk, disk_read=>disk_read, disk_write=>disk_write, controller_action_complete=>controller_action_complete);
 
-begin
-	C1: CPU port map(clk, reset_N, controller_action_complete, addr_out_cpu, dout_cpu, controller_enable_read, controller_enable_write);
+	begin
+		C1: CPU port map(clk, reset_N, controller_action_complete, addr_out_cpu, dout_cpu, controller_enable_read, controller_enable_write);
 
-	L21: L2Cache port map(tag_in, index_in, din_cpu, din_mainmem, cache_read_mm, cache_read_cpu, 
+		L21: L2Cache port map(tag_in, index_in, din_cpu, din_mainmem, cache_read_mm, cache_read_cpu, 
 			     cache_write_mm, cache_write_cpu, mem_reset_N, dout_cpu, dout_mainmem, 
 			     read_complete_l2, write_complete_l2);
 
-	TLB1 : TLB port map(tlb_addr_in, tlb_read, tlb_write, mem_reset_N, tlb_found, tlb_addr_out);
+		TLB1 : TLB port map(tlb_addr_in, tlb_read, tlb_write, mem_reset_N, tlb_found, tlb_addr_out);
 
-	MM1 : MainMem port map(addr_in_mm, page_in_buffer, din_l2cache, mem_read_buffer, mem_read_cache, mem_write_buffer,
+		MM1 : MainMem port map(addr_in_mm, page_in_buffer, din_l2cache, mem_read_buffer, mem_read_cache, mem_write_buffer,
 			 mem_write_cache, mm_page_query, mem_reset_N, mm_page_found, page_out_buffer, dout_l2cache,
 			 mm_read_complete, mm_write_complete);
 
-	MMU1 : MMU port map(addr_in_cpu, addr_in_tlb, mmu_enable, tlb_addr_found, addr_out_tlb, addr_out_ctrl, mm_page_lookup_needed);
+		MMU1 : MMU port map(addr_in_cpu, addr_in_tlb, mmu_enable, tlb_addr_found, addr_out_tlb, addr_out_ctrl, mm_page_lookup_needed);
 
-	IOBuf1: IOBUF port map(addr_in_iobuf, page_in_mm, track_in_disk, io_read_mm, io_write_mm, io_read_disk, io_write_disk,
+		IOBuf1: IOBUF port map(addr_in_iobuf, page_in_mm, track_in_disk, io_read_mm, io_write_mm, io_read_disk, io_write_disk,
 			       mem_reset_N, page_out_mm, track_out_disk, io_read_complete, io_write_complete);
 	
-	Disk1: MagDisk port map(disk_addr_in, disk_track_in, mem_reset_N, disk_read, disk_write, disk_track_out, disk_read_complete,
+		Disk1: MagDisk port map(disk_addr_in, disk_track_in, mem_reset_N, disk_read, disk_write, disk_track_out, disk_read_complete,
 				disk_write_complete);
 
-	MemController1: MemController port map(addr_from_cpu, addr_out_ctrl, controller_enable_read, controller_enable_write,
-		 mm_page_lookup_needed, mm_page_found, clk, read_complete_l2, write_complete_l2, mm_read_complete, mm_write_complete,
-		 io_read_complete, io_write_complete, disk_read_complete, disk_write_complete, addr_out_cpu, addr_out_tlb, mem_reset_N, mmu_enable,
-		 mm_page_query, tlb_read, tlb_write, cache_read_mm, cache_write_mm, mem_read_buffer, mem_write_buffer, mem_read_cache,
-	  	 mem_write_cache, io_read_mm, io_write_mm, io_read_disk, io_write_disk, disk_read, disk_write, controller_action_complete);
+		MemController1: MemController port map(addr_from_cpu, addr_out_ctrl, controller_enable_read, controller_enable_write,
+			 mm_page_lookup_needed, mm_page_found, clk, read_complete_l2, write_complete_l2, mm_read_complete, mm_write_complete,
+			 io_read_complete, io_write_complete, disk_read_complete, disk_write_complete, addr_out_cpu, addr_out_tlb, mem_reset_N, mmu_enable,
+			 mm_page_query, tlb_read, tlb_write, cache_read_mm, cache_write_mm, mem_read_buffer, mem_write_buffer, mem_read_cache,
+	  		 mem_write_cache, io_read_mm, io_write_mm, io_read_disk, io_write_disk, disk_read, disk_write, controller_action_complete);
 
 end Chip_arch;
