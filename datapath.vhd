@@ -56,10 +56,10 @@ architecture datapath_arch of datapath is
 	port map(clk=>clk, wr_en=>wr_en, reset_N=>reset_N, rd_addr_1=>rs, rd_addr_2=>rt, wr_addr=>rd, 
 						d_in=>d_in, d_out_1=>RFout1, d_out_2=>RFout2);
 
-	for all : INST_MEM use entity work.INST_MEM(INST_MEM_ARCH)
+	for all : Inst_Mem use entity work.Inst_Mem(Inst_Mem_Arch)
 	port map(MemRead=>MemRead, MemWrite=>MemWrite, d_in=>RegBout, address=>mem_address, d_out=>Md_out);
 
-	for all : DATA_MEM use entity work.DATA_MEM(DATA_MEM_ARCH)
+	for all : Data_Mem use entity work.Data_Mem(Data_Mem_Arch)
 	port map(MemRead=>MemRead, MemWrite=>MemWrite, d_in=>RegBout, address=>mem_address, d_out=>Md_out);
 
 	-- Don't port map here because each register gets a different set of inputs
@@ -70,9 +70,9 @@ architecture datapath_arch of datapath is
 
 		RF1 : RegFile port map(clk, RegWrite, reset_N, rs, rt, rd, RFin, RFout1, RFout2);
 	
-		IM1: INST_MEM port map(InstMemRead, InstMemWrite, regBout, mem_address, Md_out);
+		IM1: Inst_Mem port map(InstMemRead, InstMemWrite, regBout, mem_address, Md_out);
 
-		DM1 : DATA_MEM port map(DataMemRead, DataMemWrite, data_mem_in, mem_address, Md_out);
+		DM1 : Data_Mem port map(DataMemRead, DataMemWrite, data_mem_in, mem_address, Md_out);
 
 		ALUout_reg: reg port map(ALUout, clk, clk, reset_N, ALUout_val);
 
