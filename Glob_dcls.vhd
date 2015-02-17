@@ -56,10 +56,11 @@ package Glob_dcls is
 		-- Bits 11 .. 9 specify the track
 		-- Bits 8 .. 0 specify the byte
 	subtype track_addr is INTEGER range 0 to 7;
-	subtype sector_addr is INTEGER range 0 to 131071;
+	subtype sector_addr is INTEGER range 0 to 262144;
 	subtype track_index is INTEGER range 0 to 511;
 	type track is array(track_index) of Byte;
 	type sector is array (track_addr) of track;
+	type disk_storage is array (sector_addr) of sector;
 
 	-- Tracks and pages are both 512 bytes: use this identifier with the
 	-- I/O Buffer and Main Memory ports
@@ -68,8 +69,6 @@ package Glob_dcls is
 
 	-- Include the address and a valid bit
 	type page_table is array (page_range) of STD_LOGIC_VECTOR(8 downto 0);
-
-	type disk_storage is array (sector_addr) of sector;
 
 	type register_file is array (0 to word_size - 1) of word;
 
@@ -138,8 +137,8 @@ package Glob_dcls is
   	   	);
 	end component;
 	
-	-- 64 kb capacity
-	component INST_MEM IS
+	-- 64 KB capacity
+	component Inst_Mem IS
    		port(
 			MemRead	 : IN STD_LOGIC;
 	 		MemWrite : IN STD_LOGIC;
@@ -150,7 +149,7 @@ package Glob_dcls is
 	end component;
 
 	-- 64 KB capacity 
-	component DATA_MEM IS
+	component Data_Mem IS
    		port(
 			MemRead	 : IN STD_LOGIC;
 	 		MemWrite : IN STD_LOGIC;
@@ -325,6 +324,13 @@ package Glob_dcls is
 			iobuf_read_disk, iobuf_write_disk 		: OUT STD_LOGIC;
 			disk_read, disk_write 				: OUT STD_LOGIC;
 			controller_action_complete 			: OUT STD_LOGIC		
+		);
+	end component;
+
+	component Chip is
+		port (
+    			clk     : IN STD_LOGIC;
+			reset_N : IN STD_LOGIC
 		);
 	end component;
 
