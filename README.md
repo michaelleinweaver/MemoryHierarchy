@@ -29,8 +29,8 @@ Magnetic Disk | Utilizes the Advanced Format standard with 4K sectors. Storage c
   - [X] Main Memory
   - [X] I/O Buffer
   - [X] Magnetic Disk
-- [ ] Integration
+- [X] Integration
   - [X] Single VHDL File Connecting CPU and Memory Hierarchy
   - [X] Von Neumann Architecture to Harvard Architecture Conversion
   - [X] Clean-up
-  - [ ] Final Testing
+  - [X] Final Testing
