@@ -148,6 +148,8 @@ architecture control_arch of control is
 
 				InstMemRead <= '0';
 
+				InstMemWrite <= '0';
+
 				PCUpdate <= '0';
 
 			-- If we're performing an R-Type, non-immediate
