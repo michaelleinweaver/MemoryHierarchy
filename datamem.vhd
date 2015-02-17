@@ -7,7 +7,7 @@ USE IEEE.std_logic_unsigned.all;
 USE IEEE.numeric_std.all;
 USE work.Glob_dcls.all;
 
-entity DATA_MEM is
+entity Data_Mem is
 
    	port (
 		MemRead		: IN STD_LOGIC;
@@ -17,10 +17,10 @@ entity DATA_MEM is
 	 	d_out		: OUT word 
 	);
 
-end DATA_MEM;
+end Data_Mem;
 
 
-architecture DATA_MEM_ARCH of DATA_MEM is
+architecture Data_Mem_Arch of Data_Mem is
 
 	-- component declaration
 	-- given in Glob_dcls.vhd
@@ -82,6 +82,6 @@ begin
 
 	end process;
 
-end DATA_MEM_ARCH;
+end Data_Mem_Arch;
 
 
