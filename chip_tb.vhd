@@ -12,10 +12,8 @@ end Chip_tb;
 architecture Chip_test of Chip_tb is
 
 	-- signal declaration
-	signal clk, reset_N : STD_LOGIC;
-
-	-- Use this signal to run the test process once only
-	signal dummy : STD_LOGIC;
+	signal reset_N : STD_LOGIC;
+	signal clk : STD_LOGIC := '0';
 
 	-- component specification
 	for all : Chip use entity work.Chip(Chip_arch)
@@ -27,17 +25,6 @@ begin
 
 	reset_N <= '1' after 1 ns, '0' after 2 ns, '1' after 3 ns;
 
-	dummy <= '1' after 5 ns;
+	clk <= NOT clk after CLK_PERIOD;
 
-	process
-	begin
-		-- Begin general testing
-
-
-
-		-- End general testing
-
-		wait until dummy'event AND dummy = '0';
-
-	end process;
 end Chip_test;
